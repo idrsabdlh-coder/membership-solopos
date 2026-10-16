@@ -1,83 +1,143 @@
 <mxfile host="app.diagrams.net" agent="Copilot" pages="2">
   <diagram id="membership-erd" name="Membership">
-    <mxGraphModel dx="6326" dy="2511" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="1">
+    <mxGraphModel dx="1344" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1960" pageHeight="1280" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="e-users-orders" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="orders" value="1 : 0..*">
+        <mxCell id="e-users-orders" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;" target="orders" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="500" />
+              <mxPoint x="730" y="478" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-users-subs" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.72;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="subscriptions" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="561.6" />
+              <mxPoint x="360" y="1050" />
+              <mxPoint x="750" y="1050" />
+              <mxPoint x="750" y="900" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-users-clippings" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="clippings" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="500" />
+              <mxPoint x="20" y="870" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-users-downloads" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="downloads" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="640" />
+              <mxPoint x="350" y="1130" />
+              <mxPoint x="1340" y="1130" />
+              <mxPoint x="1340" y="800" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-plans-orders" edge="1" parent="1" source="plans" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.79;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="orders" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="300.7" />
+              <mxPoint x="730" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-plans-subs" edge="1" parent="1" source="plans" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.939394;exitDx=0;exitDy=0;entryX=0;entryY=0.214286;entryDx=0;entryDy=0;" target="subscriptions" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="350" />
+              <mxPoint x="760" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-vouchers-orders" edge="1" parent="1" source="vouchers" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.375;exitDx=0;exitDy=0;entryX=0;entryY=0.78125;entryDx=0;entryDy=0;" target="orders" value="0..* : 0..1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="780" />
+              <mxPoint x="740" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-orders-payments" edge="1" parent="1" source="orders" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3125;exitDx=0;exitDy=0;entryX=0;entryY=0.741935;entryDx=0;entryDy=0;" target="payments" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="450" />
+              <mxPoint x="1150" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-orders-subs" edge="1" parent="1" source="orders" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="subscriptions" value="0..* : 0..1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e-users-subs" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="subscriptions" value="1 : 0..*">
+        <mxCell id="e-subs-clippings" edge="1" parent="1" source="subscriptions" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.714286;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="clippings" value="0..* : 0..1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="960" />
+              <mxPoint x="380" y="870" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-subs-downloads" edge="1" parent="1" source="subscriptions" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.678571;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="downloads" value="0..* : 0..1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1140" y="950" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-editions-pages" edge="1" parent="1" source="editions" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="pages" value="1 : 0..*">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e-users-clippings" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="clippings" value="1 : 0..*">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-users-downloads" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="downloads" value="1 : 0..*">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-plans-orders" edge="1" parent="1" source="plans" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="orders" value="1 : 0..*">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-plans-subs" edge="1" parent="1" source="plans" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="subscriptions" value="1 : 0..*">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-vouchers-orders" edge="1" parent="1" source="vouchers" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="orders" value="0..* : 0..1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-orders-payments" edge="1" parent="1" source="orders" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="payments" value="1 : 0..*">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-orders-subs" edge="1" parent="1" source="orders" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="subscriptions" value="0..* : 0..1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-subs-clippings" edge="1" parent="1" source="subscriptions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="clippings" value="0..* : 0..1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-subs-downloads" edge="1" parent="1" source="subscriptions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="downloads" value="0..* : 0..1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-editions-pages" edge="1" parent="1" source="editions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="pages" value="1 : 0..*">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-editions-downloads" edge="1" parent="1" source="editions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;" target="downloads" value="1 : 0..*">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="e-editions-downloads" edge="1" parent="1" source="editions" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.742857;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="downloads" value="1 : 0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1540" y="600" />
+              <mxPoint x="1540" y="1120" />
+              <mxPoint x="1510" y="1120" />
+              <mxPoint x="1510" y="950" />
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="users" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;users&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;name : VARCHAR(255)&lt;br&gt;email : VARCHAR(255) UNIQUE&lt;br&gt;whatsapp : VARCHAR(20) NULL&lt;br&gt;avatar_path : VARCHAR(255) NULL&lt;br&gt;email_verified_at : TIMESTAMP NULL&lt;br&gt;password : VARCHAR(255)&lt;br&gt;remember_token : VARCHAR(100) NULL&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL" vertex="1">
-          <mxGeometry height="280" width="285" x="-982.5" y="1020" as="geometry" />
+          <mxGeometry height="280" width="285" x="40" y="360" as="geometry" />
         </mxCell>
         <mxCell id="plans" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;plans&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;type : VARCHAR(255)&lt;br&gt;name : VARCHAR(255)&lt;br&gt;billing_period : VARCHAR(255)&lt;br&gt;duration_days : SMALLINT UNSIGNED&lt;br&gt;price : INT UNSIGNED&lt;br&gt;clipping_quota : SMALLINT UNSIGNED&lt;br&gt;download_limit_per_edition : TINYINT UNSIGNED&lt;br&gt;download_limit_per_day : TINYINT UNSIGNED&lt;br&gt;is_recommended : BOOLEAN&lt;br&gt;is_active : BOOLEAN&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL&lt;br&gt;&lt;i&gt;UNIQUE (type, billing_period)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="330" width="300" x="-697.5" y="635" as="geometry" />
+          <mxGeometry height="330" width="300" x="400" y="40" as="geometry" />
         </mxCell>
         <mxCell id="vouchers" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;vouchers&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;code : VARCHAR(255) UNIQUE&lt;br&gt;type : VARCHAR(255)&lt;br&gt;value : INT UNSIGNED&lt;br&gt;quota : INT UNSIGNED NULL&lt;br&gt;used : INT UNSIGNED&lt;br&gt;valid_from : DATETIME NULL&lt;br&gt;valid_until : DATETIME NULL&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL" vertex="1">
-          <mxGeometry height="240" width="300" x="-592.5" y="1500" as="geometry" />
+          <mxGeometry height="240" width="300" x="400" y="690" as="geometry" />
         </mxCell>
         <mxCell id="orders" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;orders&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;order_number : VARCHAR(255) UNIQUE&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; plan_id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; voucher_id : BIGINT UNSIGNED NULL&lt;br&gt;subtotal : INT UNSIGNED&lt;br&gt;discount : INT UNSIGNED&lt;br&gt;total : INT UNSIGNED&lt;br&gt;status : VARCHAR(255)&lt;br&gt;expires_at : DATETIME&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL&lt;br&gt;&lt;i&gt;INDEX (status, expires_at)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="320" width="310" x="-172.5" y="640" as="geometry" />
+          <mxGeometry height="320" width="310" x="790" y="350" as="geometry" />
         </mxCell>
         <mxCell id="payments" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;payments&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; order_id : BIGINT UNSIGNED&lt;br&gt;gateway : VARCHAR(255)&lt;br&gt;gateway_ref : VARCHAR(255) NULL&lt;br&gt;method : VARCHAR(255) NULL&lt;br&gt;amount : INT UNSIGNED&lt;br&gt;status : VARCHAR(255)&lt;br&gt;paid_at : DATETIME NULL&lt;br&gt;raw_payload : JSON NULL&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL&lt;br&gt;&lt;i&gt;UNIQUE (gateway, gateway_ref)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="310" width="300" x="227.5" y="270" as="geometry" />
+          <mxGeometry height="310" width="300" x="1190" y="70" as="geometry" />
         </mxCell>
         <mxCell id="subscriptions" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;subscriptions&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; plan_id : BIGINT UNSIGNED&lt;br&gt;status : VARCHAR(255)&lt;br&gt;start_date : DATETIME NULL&lt;br&gt;end_date : DATETIME NULL&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; source_order_id : BIGINT UNSIGNED NULL&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL&lt;br&gt;&lt;i&gt;INDEX (user_id, status, end_date)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="280" width="310" x="-172.5" y="1230" as="geometry" />
+          <mxGeometry height="280" width="310" x="790" y="760" as="geometry" />
         </mxCell>
         <mxCell id="clippings" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;clippings&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; subscription_id : BIGINT UNSIGNED NULL&lt;br&gt;article_ref : VARCHAR(255)&lt;br&gt;title : VARCHAR(255)&lt;br&gt;url : TEXT&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL&lt;br&gt;&lt;i&gt;UNIQUE (user_id, article_ref)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="240" width="300" x="-990" y="1450" as="geometry" />
+          <mxGeometry height="240" width="300" x="40" y="750" as="geometry" />
         </mxCell>
         <mxCell id="editions" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;epaper_editions&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;edition_number : INT UNSIGNED&lt;br&gt;edition_year : SMALLINT UNSIGNED&lt;br&gt;publish_date : DATE&lt;br&gt;publish_end_date : DATE&lt;br&gt;master_pdf_path : VARCHAR(255)&lt;br&gt;checksum : VARCHAR(64) NULL&lt;br&gt;file_size : BIGINT UNSIGNED&lt;br&gt;cover_path : VARCHAR(255) NULL&lt;br&gt;page_count : SMALLINT UNSIGNED&lt;br&gt;status : VARCHAR(255)&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL&lt;br&gt;&lt;i&gt;UNIQUE (edition_year, edition_number)&lt;br&gt;INDEX (publish_date, publish_end_date)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="350" width="320" x="707.5" y="835" as="geometry" />
+          <mxGeometry height="350" width="320" x="1580" y="340" as="geometry" />
         </mxCell>
         <mxCell id="pages" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;epaper_pages&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; edition_id : BIGINT UNSIGNED&lt;br&gt;page_no : SMALLINT UNSIGNED&lt;br&gt;file_path : VARCHAR(255)&lt;br&gt;created_at : TIMESTAMP NULL&lt;br&gt;updated_at : TIMESTAMP NULL&lt;br&gt;&lt;i&gt;UNIQUE (edition_id, page_no)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="200" width="320" x="707.5" y="1250" as="geometry" />
+          <mxGeometry height="200" width="320" x="1580" y="800" as="geometry" />
         </mxCell>
         <mxCell id="downloads" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F1FC;strokeColor=#5B8DB8;align=left;verticalAlign=top;spacing=10;fontSize=12;" value="&lt;b&gt;epaper_downloads&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id : BIGINT UNSIGNED&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; subscription_id : BIGINT UNSIGNED NULL&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; edition_id : BIGINT UNSIGNED&lt;br&gt;watermark_hash : CHAR(32) UNIQUE&lt;br&gt;file_name : VARCHAR(255)&lt;br&gt;ip_address : VARCHAR(45) NULL&lt;br&gt;user_agent : TEXT NULL&lt;br&gt;downloaded_at : TIMESTAMP&lt;br&gt;&lt;i&gt;INDEX (user_id, downloaded_at)&lt;br&gt;INDEX (user_id, edition_id)&lt;/i&gt;" vertex="1">
-          <mxGeometry height="300" width="300" x="227.5" y="860" as="geometry" />
+          <mxGeometry height="300" width="300" x="1190" y="800" as="geometry" />
         </mxCell>
-        <mxCell id="legend" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;align=left;verticalAlign=middle;spacing=10;fontSize=12;" value="&lt;font style=&quot;font-size: 26px;&quot;&gt;&lt;b style=&quot;&quot;&gt;Keterangan&lt;/b&gt;&lt;br&gt;PK = Primary Key · FK = Foreign Key&lt;br&gt;Kardinalitas ditulis sumber : target&lt;br&gt;1 : 0..* = satu ke nol/banyak&lt;br&gt;0..1 = relasi opsional karena FK nullable&lt;br&gt;Tipe data = representasi SQL umum dari migration.&lt;/font&gt;" vertex="1">
-          <mxGeometry height="270" width="680" x="-1740" y="160" as="geometry" />
+        <mxCell id="legend" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;align=left;verticalAlign=middle;spacing=10;fontSize=13;" value="&lt;b&gt;Keterangan&lt;/b&gt;&lt;br&gt;PK = Primary Key · FK = Foreign Key&lt;br&gt;Kardinalitas ditulis sumber : target&lt;br&gt;1 : 0..* = satu ke nol/banyak&lt;br&gt;0..1 = relasi opsional karena FK nullable&lt;br&gt;Tipe data = representasi SQL umum dari migration." vertex="1">
+          <mxGeometry height="150" width="400" x="1520" y="50" as="geometry" />
         </mxCell>
-        <mxCell id="title-membership" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontColor=#1E293B;" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;&lt;b style=&quot;&quot;&gt;ERD Solopos Membership — Tabel Bisnis&lt;/b&gt;&lt;br&gt;Berdasarkan migration backend saat ini&lt;/font&gt;" vertex="1">
-          <mxGeometry height="140" width="1130" x="-1670" y="1950" as="geometry" />
+        <mxCell id="title-membership" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontColor=#1E293B;" value="&lt;b&gt;ERD Solopos Membership — Tabel Bisnis&lt;/b&gt;&lt;br&gt;Berdasarkan migration backend saat ini" vertex="1">
+          <mxGeometry height="60" width="1130" x="40" y="1180" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
