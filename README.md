@@ -19,6 +19,7 @@ Copy-Item .env.example .env
 New-Item -ItemType File .\database\database.sqlite
 php artisan key:generate
 php artisan migrate --seed
+php artisan storage:link
 ```
 
 Jika `.env` atau `database.sqlite` sudah ada, lewati perintah `Copy-Item` atau `New-Item` yang sesuai agar file lokal tidak tertimpa.
@@ -47,6 +48,8 @@ npm run dev
 ```
 
 Buka `http://localhost:3000`. Endpoint backend tersedia di `http://127.0.0.1:8000/api`; frontend menggunakan alamat tersebut sebagai default.
+
+Autentikasi browser memakai cookie session Sanctum. Sebelum login, frontend perlu meminta `/sanctum/csrf-cookie`, lalu memakai `credentials: "include"` untuk permintaan API dan mengirim header `X-XSRF-TOKEN` dari cookie `XSRF-TOKEN`. Domain lokal diizinkan melalui `SANCTUM_STATEFUL_DOMAINS` dan `CORS_ALLOWED_ORIGINS`; ubah kedua nilai tersebut untuk domain frontend yang disetujui IT. Tautan reset sandi mengarah ke `FRONTEND_URL/reset-password`. Avatar disimpan pada disk public dan disajikan melalui symlink yang dibuat oleh `storage:link`.
 
 ## Pemeriksaan
 

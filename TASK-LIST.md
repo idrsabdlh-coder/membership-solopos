@@ -18,7 +18,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
 - [x] **Memperbaiki seeder database** *(task induk `fix-database-seeder`)* — Seeder paket dapat dijalankan setelah migration.
 - [x] **Menyelesaikan API katalog paket** *(bagian backend dari `finalize-plan-catalog`)* — `GET /api/plans?type=&period=` dengan validasi enum, filter, resource terstruktur, paket aktif saja, urutan stabil, cache publik 60 detik, dan feature tests. Harga/kuota seeded tetap baseline sementara sampai keputusan bisnis final; halaman pricing frontend masih dikerjakan.  
   *PRD: FR-03, US-B1.*
-- [ ] **Membangun API autentikasi dan profil** *(`implement-user-auth`)* — Register, verifikasi email, login/logout, lupa/reset sandi, profil/avatar/WhatsApp dan ganti sandi; rate limit. Pisahkan provider auth agar keputusan cookie/token/domain dari IT dapat dipasang tanpa mengubah modul bisnis.  
+- [x] **Membangun API autentikasi dan profil** *(bagian backend dari `implement-user-auth`)* — Register, verifikasi email, login/logout, lupa/reset sandi, profil/avatar/WhatsApp dan ganti sandi; rate limit. Endpoint terlindungi memakai abstraksi guard `auth:sanctum`; konfigurasi sesi, cookie, token, dan domain tetap dapat disesuaikan IT tanpa mengubah modul bisnis. UI frontend masih belum dikerjakan.  
   *PRD: FR-01–02, US-A1–A4, §11.3.*
 - [ ] **Membangun API checkout, order, dan voucher** *(`implement-checkout-orders-vouchers`)* — Buat order, validasi voucher/kuota/masa berlaku, hitung subtotal-diskon-total, tolak voucher gabungan, dan kedaluwarsakan pending order setelah 24 jam.  
   *PRD: FR-04, FR-15, US-B2, US-B5, §15.*
