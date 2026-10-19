@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
@@ -42,8 +43,10 @@ class AuthController extends Controller
             ->setStatusCode(201);
     }
 
-    public function login(Request $request): UserResource|JsonResponse
+    public function login(Request $request, SessionController $sessions): UserResource|JsonResponse
     {
+        $sessions->ensureDatabaseSessionStore();
+
         if (! $request->hasSession()) {
             return response()->json([
                 'message' => 'Login harus dilakukan dari domain aplikasi yang terdaftar untuk autentikasi sesi.',
@@ -79,8 +82,11 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+        $request->session()->save();
+        $previousSessionRevoked = $sessions->enforceLimit($request, $user);
 
-        return UserResource::make($user);
+        return UserResource::make($user)
+            ->additional(['meta' => ['previous_session_revoked' => $previousSessionRevoked]]);
     }
 
     public function logout(Request $request): JsonResponse
@@ -94,6 +100,14 @@ class AuthController extends Controller
 
         if ($request->hasSession()) {
             Auth::guard('web')->logout();
+
+            if (config('session.driver') === 'database') {
+                DB::connection(config('session.connection'))
+                    ->table(config('session.table'))
+                    ->where('id', $request->session()->getId())
+                    ->delete();
+            }
+
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }

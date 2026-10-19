@@ -17,6 +17,12 @@ class AuthProfileTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['session.driver' => 'database']);
+    }
+
     public function test_registration_creates_an_unverified_user_and_sends_verification_email(): void
     {
         Notification::fake();

@@ -49,9 +49,9 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
 
 - [x] **Menyiapkan lingkungan frontend lokal** *(bagian frontend dari `prepare-local-environment`)* — Dependensi npm, build dan panduan development lokal.  
   *Hasil: [README.md](./README.md).*
-- [~] **Menyelesaikan halaman pricing** *(bagian frontend dari `finalize-plan-catalog`)* — Tab jenis paket, kartu periode mingguan/bulanan/tahunan, rekomendasi, fitur, harga, loading/error/empty state dan konsumsi API katalog. Halaman awal sudah tersedia.  
+- [x] **Menyelesaikan halaman pricing** *(bagian frontend dari `finalize-plan-catalog`)* — Tab jenis paket, kartu periode mingguan/bulanan/tahunan, rekomendasi, fitur, harga, loading/error/empty state dan konsumsi API katalog. Tombol checkout tetap dinonaktifkan hingga task checkout selesai.
   *PRD: FR-03, US-B1, §14.*
-- [ ] **Membangun halaman autentikasi dan profil** *(bagian frontend dari `implement-user-auth`)* — Daftar, masuk, lupa/reset sandi, verifikasi email, pengaturan profil dan validasi/pesan error; sambungkan ke adapter auth backend tanpa mengunci mekanisme cookie/token sebelum keputusan IT.  
+- [x] **Membangun halaman autentikasi dan profil** *(bagian frontend dari `implement-user-auth`)* — Daftar, masuk, lupa/reset sandi, verifikasi email, pengaturan profil, avatar, ganti sandi, logout, serta state validasi/error; terintegrasi dengan sesi Sanctum SPA backend. Konfigurasi domain/cookie produksi tetap mengikuti persetujuan IT.
   *PRD: FR-01–02, US-A1–A4.*
 - [ ] **Membangun checkout dan status pembayaran** *(bagian frontend dari `implement-checkout-orders-vouchers` dan `integrate-payment-gateway`)* — Ringkasan paket, input voucher, biaya/diskon, pilihan bayar, instruksi dan status menunggu/sukses/gagal/kedaluwarsa; tangani retry dan cek status secara jelas.  
   *PRD: US-B2–B5, §14.*
@@ -75,7 +75,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
 ## Lintas tim — Kontrak, QA, infrastruktur, dan rilis
 
 - [ ] **Meninjau dan menjaga kontrak API dan state UI** — Gunakan kontrak, format error, autentikasi dan state loading/error/empty yang sudah didefinisikan di [DESIGN.md](./DESIGN.md#api-contract-and-frontend-state-conventions) sebagai baseline; Frontend dan Backend mengonfirmasi bagian per fitur, menambah contoh request/response yang belum ada, serta memperbarui dokumen saat implementasi berbeda. Berlaku untuk API di PRD §13.
-- [ ] **Membatasi sesi dan perangkat secara end-to-end** *(task induk `session-device-controls`)* — Backend menegakkan batas dua sesi; frontend memberi informasi serta UI kelola/revokasi bila disetujui.  
+- [x] **Membatasi sesi dan perangkat secara end-to-end** *(task induk `session-device-controls`)* — Database session store menegakkan batas dua sesi, mencabut sesi paling lama saat login ketiga, dan menyediakan daftar/revokasi sesi milik pengguna; halaman pengaturan menampilkan perangkat, sesi saat ini, waktu aktivitas, dan aksi pencabutan serta memberi tahu saat sesi lama dicabut.
   *PRD: FR-17.*
 - [ ] **Memvalidasi MySQL via Docker** *(task induk `validate-mysql-docker-integration`)* — Setelah fitur backend stabil dan sebelum UAT, jalankan MySQL 8 melalui [docker-compose.yml](./backend/docker-compose.yml); uji migration/seed DB kosong dan regresi di SQLite serta MySQL. Docker belum tersedia di mesin saat terakhir diperiksa.
 - [ ] **Memenuhi target kualitas nonfungsional** *(task induk `nonfunctional-quality`)* — Ukur API p95 <500 ms, LCP <2,5 dtk, halaman pertama viewer <2 dtk, PDF 12 halaman <10 dtk; responsif, dua versi browser terakhir, WCAG 2.1 AA, SEO/metadata/sitemap, Bahasa Indonesia, WIB dan IDR. FE dan BE mencatat hasil per lapisan.  

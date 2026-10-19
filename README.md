@@ -51,6 +51,8 @@ Buka `http://localhost:3000`. Endpoint backend tersedia di `http://127.0.0.1:800
 
 Autentikasi browser memakai cookie session Sanctum. Sebelum login, frontend perlu meminta `/sanctum/csrf-cookie`, lalu memakai `credentials: "include"` untuk permintaan API dan mengirim header `X-XSRF-TOKEN` dari cookie `XSRF-TOKEN`. Domain lokal diizinkan melalui `SANCTUM_STATEFUL_DOMAINS` dan `CORS_ALLOWED_ORIGINS`; ubah kedua nilai tersebut untuk domain frontend yang disetujui IT. Tautan reset sandi mengarah ke `FRONTEND_URL/reset-password`. Avatar disimpan pada disk public dan disajikan melalui symlink yang dibuat oleh `storage:link`.
 
+Kontrol perangkat menggunakan database session store (`SESSION_DRIVER=database`): satu akun dibatasi maksimal dua sesi aktif. Sesi tertua dicabut saat login ketiga, dan sesi lain dapat dicabut dari halaman `/pengaturan`. Produksi harus memakai database session store yang sama pada seluruh instance aplikasi.
+
 ## Pemeriksaan
 
 ```powershell

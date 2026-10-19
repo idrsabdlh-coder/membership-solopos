@@ -1,5 +1,4 @@
 // src/components/plans/PlanCard.tsx
-import Link from "next/link";
 import type { BillingPeriod, Plan } from "@/types/plan";
 import { formatRupiah } from "@/lib/utils/format";
 
@@ -62,12 +61,14 @@ export default function PlanCard({ plan }: { plan: Plan }) {
       </ul>
 
       <footer className="px-6 pb-6">
-        <Link
-          href={`/checkout/${plan.id}`}
-          className="block rounded bg-navy px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-navy-hover"
+        <button
+          type="button"
+          disabled
+          title="Proses checkout sedang disiapkan."
+          className="block w-full cursor-not-allowed rounded bg-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-600"
         >
-          Beli Sekarang
-        </Link>
+          Checkout segera tersedia
+        </button>
       </footer>
     </article>
   );
