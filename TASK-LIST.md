@@ -1,0 +1,95 @@
+# Task List Solopos Membership — Pembagian Frontend / Backend
+
+Daftar ini membagi implementasi berdasarkan pemilik kerja teknis, dengan persyaratan tetap mengacu pada [PRD.md](./PRD.md) versi 1.2. Task dapat dikerjakan paralel jika dependency dan kontrak API-nya sudah disepakati.
+
+**Status task induk saat ini:** 2 selesai, 1 sedang dikerjakan, 23 belum dimulai. Status subtask di bawah mengikuti status task induk terkait, bukan klaim bahwa seluruh subtask sudah selesai.
+
+Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
+
+## Keputusan bersama sebelum integrasi
+
+- [ ] **Memfinalisasi keputusan produk dan integrasi** *(Lintas tim; task induk `product-discovery-decisions`)* — Tinjau baseline keputusan di [DESIGN.md](./DESIGN.md#mvp-decision-baseline), minta persetujuan pemilik bisnis/IT/legal/CMS untuk harga/kuota, gateway, upgrade, auth/domain, CMS, privasi/watermark, hosting dan kebijakan operasional; catat keputusan final serta pengecualian. Baseline DESIGN dipakai untuk development dan sandbox sambil menunggu persetujuan, bukan persetujuan produksi.  
+  *PRD: §17 Fase 0, §19–20.*
+
+## Backend — Laravel API, aturan bisnis, dan data
+
+- [x] **Menyiapkan lingkungan backend lokal** *(task induk `prepare-local-environment`)* — Dependensi Laravel, `.env` lokal, SQLite, migration dan panduan setup.  
+  *Hasil: [README.md](./README.md).*
+- [x] **Memperbaiki seeder database** *(task induk `fix-database-seeder`)* — Seeder paket dapat dijalankan setelah migration.
+- [x] **Menyelesaikan API katalog paket** *(bagian backend dari `finalize-plan-catalog`)* — `GET /api/plans?type=&period=` dengan validasi enum, filter, resource terstruktur, paket aktif saja, urutan stabil, cache publik 60 detik, dan feature tests. Harga/kuota seeded tetap baseline sementara sampai keputusan bisnis final; halaman pricing frontend masih dikerjakan.  
+  *PRD: FR-03, US-B1.*
+- [ ] **Membangun API autentikasi dan profil** *(`implement-user-auth`)* — Register, verifikasi email, login/logout, lupa/reset sandi, profil/avatar/WhatsApp dan ganti sandi; rate limit. Pisahkan provider auth agar keputusan cookie/token/domain dari IT dapat dipasang tanpa mengubah modul bisnis.  
+  *PRD: FR-01–02, US-A1–A4, §11.3.*
+- [ ] **Membangun API checkout, order, dan voucher** *(`implement-checkout-orders-vouchers`)* — Buat order, validasi voucher/kuota/masa berlaku, hitung subtotal-diskon-total, tolak voucher gabungan, dan kedaluwarsakan pending order setelah 24 jam.  
+  *PRD: FR-04, FR-15, US-B2, US-B5, §15.*
+- [ ] **Mengintegrasikan gateway dan webhook pembayaran** *(`integrate-payment-gateway`)* — Adapter gateway terpilih, pembuatan transaksi/metode bayar, verifikasi signature webhook, idempotensi, retry/queue, rekonsiliasi dan cek status. Jangan simpan data kartu.  
+  *PRD: FR-04–05, US-B3, §18.*
+- [ ] **Mengimplementasikan lifecycle langganan dan entitlement** *(`implement-subscription-lifecycle`)* — Aktivasi otomatis target <1 menit setelah pembayaran; masa aktif dan expiry WIB; akses fitur/kuota; perpanjangan dari `end_date` atau hari ini; upgrade sesuai keputusan bisnis. Sediakan API status dan riwayat untuk member area.  
+  *PRD: FR-06–07, FR-12–14, US-B4, US-G1–G3, §6.3, §15.*
+- [ ] **Menyediakan entitlement Free Ads untuk CMS** *(bagian backend dari `integrate-cms-free-ads`)* — API/claim akses yang dapat diverifikasi portal berita untuk menyembunyikan iklan selama langganan aktif serta mencabut hak setelah kedaluwarsa. Koordinasikan kontrak autentikasi dan integrasi CMS.  
+  *PRD: FR-08, US-D1–D2, §11.2.*
+- [ ] **Membangun API clipping dan kuota** *(bagian backend dari `implement-clipping`)* — Simpan/daftar/cari/hapus, cegah artikel duplikat, validasi kuota paket aktif dan pertahankan clipping read-only 90 hari setelah expiry.  
+  *PRD: FR-11, US-F1–F2, §15.*
+- [ ] **Membangun ingestion dan pengelolaan edisi E-Paper** *(bagian backend dari `implement-epaper-management`)* — Upload master privat, validasi PDF, metadata dan rentang edisi gabungan, checksum, hitung halaman, cover/thumbnail, status publish.  
+  *PRD: FR-25, US-E6, §22.*
+- [ ] **Membangun API reader dan unduhan E-Paper** *(bagian backend dari `implement-epaper-access-download`)* — Daftar/filter edisi, akses berdasarkan irisan rentang tanggal, akses halaman bertanda tangan, PDF ber-watermark email + hash unik 32 hex pada tiap halaman, nama file, signed URL 5 menit, queue/cache/cleanup, batas unduhan dan log IP/perangkat/hash.  
+  *PRD: FR-09–10, FR-21–24, US-E1–E5, §6.3, §22.*
+- [ ] **Membangun API invoice, riwayat, dan upgrade** *(bagian backend dari `member-history-upgrade`)* — Riwayat order/pembayaran/langganan, invoice unduhan, perbandingan dan harga upgrade sesuai keputusan prorata/kredit.  
+  *PRD: FR-13–14, US-G1–G2.*
+- [ ] **Membangun backoffice dan akses staf** *(bagian backend/admin dari `build-backoffice`)* — Role/otorisasi staf; kelola paket, harga, kuota, voucher dan edisi; lihat pelanggan/order/payment; ekspor laporan dan audit tindakan. Teknologi UI admin (mis. Filament) diputuskan saat discovery.  
+  *PRD: FR-20, §5.1.*
+- [ ] **Membangun notifikasi, queue, dan scheduler** *(`implement-notifications`)* — Email bukti transaksi sukses/gagal/kedaluwarsa, pengingat H-7/H-3/H-1 dan expiry; log status kirim. WhatsApp opsional berdasarkan keputusan dan provider yang disetujui.  
+  *PRD: FR-16, US-H1–H2.*
+- [ ] **Menerapkan sesi, persetujuan, dan hak privasi pada backend** *(bagian backend dari `session-device-controls` dan `implement-privacy-controls`)* — Default maksimal dua sesi, otorisasi/revokasi sesuai mekanisme IT, catat consent, retensi serta hak hapus data sesuai UU PDP dan keputusan legal.  
+  *PRD: FR-17, §6.3, §10, §18.*
+- [ ] **Merekam analitik dan menyediakan data dashboard internal** *(bagian backend dari `implement-analytics`)* — Simpan event funnel dan hitung pelanggan aktif, MRR, churn, konversi paket serta metode pembayaran dengan kontrol akses.  
+  *PRD: §3.2, §16.*
+
+## Frontend — Next.js UI dan integrasi API
+
+- [x] **Menyiapkan lingkungan frontend lokal** *(bagian frontend dari `prepare-local-environment`)* — Dependensi npm, build dan panduan development lokal.  
+  *Hasil: [README.md](./README.md).*
+- [~] **Menyelesaikan halaman pricing** *(bagian frontend dari `finalize-plan-catalog`)* — Tab jenis paket, kartu periode mingguan/bulanan/tahunan, rekomendasi, fitur, harga, loading/error/empty state dan konsumsi API katalog. Halaman awal sudah tersedia.  
+  *PRD: FR-03, US-B1, §14.*
+- [ ] **Membangun halaman autentikasi dan profil** *(bagian frontend dari `implement-user-auth`)* — Daftar, masuk, lupa/reset sandi, verifikasi email, pengaturan profil dan validasi/pesan error; sambungkan ke adapter auth backend tanpa mengunci mekanisme cookie/token sebelum keputusan IT.  
+  *PRD: FR-01–02, US-A1–A4.*
+- [ ] **Membangun checkout dan status pembayaran** *(bagian frontend dari `implement-checkout-orders-vouchers` dan `integrate-payment-gateway`)* — Ringkasan paket, input voucher, biaya/diskon, pilihan bayar, instruksi dan status menunggu/sukses/gagal/kedaluwarsa; tangani retry dan cek status secara jelas.  
+  *PRD: US-B2–B5, §14.*
+- [ ] **Membangun layout member dan dashboard** *(bagian frontend dari `build-member-dashboard`)* — Navigasi member, badge/status, progress sisa hari, paket/tanggal akhir, sisa kuota, pintasan premium, bantuan dan pengaturan akun.  
+  *PRD: FR-12, US-C1–C3, §14.*
+- [ ] **Membangun halaman Free Ads** *(bagian frontend dari `integrate-cms-free-ads`)* — Terapkan flag entitlement pada slot iklan portal atau fallback yang disepakati; tampilkan ajakan langganan dan pulihkan iklan bagi pelanggan kedaluwarsa. Integrasi aktual dikoordinasikan dengan tim CMS.  
+  *PRD: FR-08, US-D1–D2, §18.*
+- [ ] **Membangun UI E-Paper** *(bagian frontend dari `implement-epaper-access-download`)* — Daftar edisi dan pemilih tanggal, cover terbuka/terkunci, viewer halaman, unduhan dengan status menyiapkan/siap/limit tercapai, dan riwayat unduh.  
+  *PRD: FR-09–10, FR-21–24, US-E1–E5, §14.*
+- [ ] **Membangun UI clipping** *(bagian frontend dari `implement-clipping`)* — Tombol Clip, daftar dan pencarian, hapus, indikator kuota, pesan saat penuh, dan tampilan read-only setelah langganan berakhir.  
+  *PRD: FR-11, US-F1–F2.*
+- [ ] **Membangun UI riwayat langganan, invoice, dan upgrade** *(bagian frontend dari `member-history-upgrade`)* — Daftar transaksi/langganan, unduh invoice, perbandingan paket dan rincian selisih upgrade.  
+  *PRD: FR-13–14, US-G1–G2.*
+- [ ] **Membangun UI backoffice bila memakai Next.js** *(bagian frontend/admin dari `build-backoffice`)* — Kerjakan hanya jika discovery memilih admin terpisah; jika memakai panel Laravel seperti Filament, task ini tidak diperlukan dan UI ditangani task backend/admin.  
+  *PRD: FR-20, §11.4.*
+- [ ] **Menerapkan consent dan pengalaman privasi** *(bagian frontend dari `implement-privacy-controls`)* — Tampilkan persetujuan dan tautan kebijakan/syarat watermark, sediakan alur permintaan hak data sesuai desain legal; jangan tampilkan klaim persetujuan yang tidak dicatat backend.  
+  *PRD: §10, §20.*
+- [ ] **Mengirim event analitik dari UI** *(bagian frontend dari `implement-analytics`)* — Instrumentasikan event pricing, pemilihan paket, checkout, login, E-Paper, clipping, kuota, reminder dan upgrade sesuai skema bersama; hindari data pribadi yang tidak diperlukan.  
+  *PRD: §16.*
+
+## Lintas tim — Kontrak, QA, infrastruktur, dan rilis
+
+- [ ] **Meninjau dan menjaga kontrak API dan state UI** — Gunakan kontrak, format error, autentikasi dan state loading/error/empty yang sudah didefinisikan di [DESIGN.md](./DESIGN.md#api-contract-and-frontend-state-conventions) sebagai baseline; Frontend dan Backend mengonfirmasi bagian per fitur, menambah contoh request/response yang belum ada, serta memperbarui dokumen saat implementasi berbeda. Berlaku untuk API di PRD §13.
+- [ ] **Membatasi sesi dan perangkat secara end-to-end** *(task induk `session-device-controls`)* — Backend menegakkan batas dua sesi; frontend memberi informasi serta UI kelola/revokasi bila disetujui.  
+  *PRD: FR-17.*
+- [ ] **Memvalidasi MySQL via Docker** *(task induk `validate-mysql-docker-integration`)* — Setelah fitur backend stabil dan sebelum UAT, jalankan MySQL 8 melalui [docker-compose.yml](./backend/docker-compose.yml); uji migration/seed DB kosong dan regresi di SQLite serta MySQL. Docker belum tersedia di mesin saat terakhir diperiksa.
+- [ ] **Memenuhi target kualitas nonfungsional** *(task induk `nonfunctional-quality`)* — Ukur API p95 <500 ms, LCP <2,5 dtk, halaman pertama viewer <2 dtk, PDF 12 halaman <10 dtk; responsif, dua versi browser terakhir, WCAG 2.1 AA, SEO/metadata/sitemap, Bahasa Indonesia, WIB dan IDR. FE dan BE mencatat hasil per lapisan.  
+  *PRD: §3.2, §10.*
+- [ ] **Menulis dan menjalankan test lintas lapisan** *(task induk `add-mvp-automated-tests`)* — Backend menulis unit/feature/integration tests; frontend menulis component/flow tests; bersama-sama verifikasi webhook, checkout, entitlement, konten, clipping, privacy dan regresi MySQL/SQLite.  
+  *PRD: §11.4, §17 Fase 4.*
+- [ ] **Menyiapkan operasi dan deployment** *(task induk `production-operations`)* — CI/CD, staging/production, MySQL, Redis queue/cache/rate limit, private object storage/CDN, worker/scheduler, HTTPS/secrets, backup dan restore.  
+  *PRD: §11.1–11.2, §17–18.*
+- [ ] **Menjalankan security, performance, dan UAT** *(task induk `security-performance-uat`)* — Review keamanan dan otorisasi, uji beban/recovery webhook, log/alert, UAT stakeholder serta beta tertutup.  
+  *PRD: §10, §17 Fase 4.*
+- [ ] **Menyelesaikan dokumentasi dan verifikasi rilis** *(task induk `document-and-verify-release`)* — Smoke test staging, konfigurasi, backup/restore, observabilitas, kriteria rilis dan sign-off stakeholder.  
+  *PRD: §17.*
+
+## Di luar MVP
+
+Aplikasi native, auto-renewal, paket korporat/multi-user, Google Login, pengiriman koran cetak, dan rekomendasi artikel AI bukan syarat MVP. Catat sebagai backlog pasca-rilis.  
+*PRD: §5.2, §17.*

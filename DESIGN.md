@@ -241,3 +241,63 @@ This system specifies a **Soft (`1`)** roundedness profile (`0.25rem` / `4px` ba
 ### 7. Form Inputs & Search Fields
 - **Container:** Hairline border `#CBD5E1`, surface `#FFFFFF`, height `2.75rem`, padding `0 0.875rem`.
 - **Focus State:** Border color transitions crisply to `#0A3A60` with a 2px outer focus halo of `rgba(10, 58, 96, 0.15)`. No dramatic shape shifts.
+
+## MVP Decision Baseline
+
+This section turns the open product and integration questions in PRD v1.2 into a concrete implementation baseline for the Frontend and Backend teams. These are product recommendations, not confirmation that Solopos business, IT, legal, CMS, or payment-provider owners have approved them. Use them for development and sandbox testing; obtain the named owner's approval before production transactions, public pricing, or production personal-data processing. A signed-off decision from the owner supersedes this baseline.
+
+### Product and Commercial Rules
+
+| Decision | MVP baseline |
+|---|---|
+| Plan periods and term | Weekly 7 days, monthly 30 days, yearly 365 days. No 3- or 6-month plan in MVP. |
+| Free Ads & E-Paper prices | Weekly Rp10,000; monthly Rp30,000; yearly Rp300,000, as proposed in PRD §6.2. |
+| Free Ads prices | Weekly Rp5,000; monthly Rp15,000; yearly Rp150,000. Provisional implementation values already used by `PlanSeeder`; require business approval before publication. |
+| E-Paper prices | Weekly Rp8,000; monthly Rp25,000; yearly Rp250,000. Provisional implementation values already used by `PlanSeeder`; require business approval before publication. |
+| Feature and quota matrix | Free Ads & E-Paper: ad-free, E-Paper, clipping. Free Ads: ad-free and clipping, no E-Paper. E-Paper: E-Paper only, no clipping. Clipping quotas for eligible plans: 5/20/200 by term. Download limits for E-Paper plans: 3 per edition and 10 per WIB calendar day. Monthly is recommended. |
+| Trial | No free trial in MVP. |
+| Voucher | One voucher maximum per ordinary order. Validate dates and remaining quota on the server; discount cannot reduce the order below zero. Do not combine a voucher with an upgrade credit. |
+| Order expiry and refunds | Unpaid order expires 24 hours after creation. No self-service refund; customer support handles refund requests manually under the approved CS policy. |
+| Renewal | If renewed while active, the new term starts at the old `end_date`. If expired, it starts at successful payment confirmation time. |
+| Upgrade | No mid-term downgrade. An upgrade must add a feature entitlement or extend the term/increase the quota while retaining the current entitlements; Free Ads-only and E-Paper-only are incomparable, so switching between them requires expiry or support rather than an upgrade. Credit = current plan price × unused seconds / total term seconds, rounded down to whole IDR. Charge = max(0, target plan price − credit). On successful payment, the new plan starts immediately for its full term and replaces the current entitlement. Credit is not paid out in cash; upgrade credit cannot be combined with a voucher. |
+| Archive and re-download | An edition is accessible only when its publish-date range overlaps the active subscription term. On expiry, reading and re-download stop, including for formerly entitled editions. Previously downloaded files remain on the customer's device. No pre-subscription archive access in MVP. |
+| Weekend editions | One combined Saturday-Sunday PDF is one edition, with both dates in `publish_date`–`publish_end_date`. |
+| WhatsApp | Phone number is optional; no OTP and no WhatsApp notifications in MVP. Transactional and reminder email are required. Revisit WhatsApp after an approved provider and consent flow exist. |
+
+### Identity, Sessions, and Integrations
+
+- **Authentication:** use Laravel Sanctum's first-party SPA cookie/session authentication; do not put bearer tokens in browser local storage. Require email and password, verification email, password reset links valid for 60 minutes and one use, login rate limiting, CSRF protection, and server-side authorization on every protected API. Google login is post-MVP.
+- **Cookie and domain policy:** production frontend and API must use HTTPS on same-site Solopos subdomains (for example, `membership.solopos.com` and `api-membership.solopos.com`). Set the session cookie domain to the approved parent domain (for example, `.solopos.com`) so the SPA can use the XSRF cookie; the session cookie itself remains `HttpOnly`, `Secure`, and `SameSite=Lax`. Configure Sanctum stateful domains, CORS credentials, and CSRF bootstrap explicitly. Local development uses `localhost:3000` and `localhost:8000` with credentialed requests. Do not choose a production domain or enable production cookies until IT approves DNS and deployment.
+- **Concurrent sessions:** at most two active sessions per user. When a third login succeeds, revoke the least recently active session and notify the user in the account UI. Session list/revocation must use the same approved session store and be covered by tests.
+- **Payment gateway:** implement Midtrans Snap first, in sandbox mode, for VA, QRIS, and available e-wallet methods. Only hosted/redirect payment flows are in scope; never receive or store card details. Keep a gateway interface so Xendit can be added later. Production use requires an active merchant account, approved fees/refund process, and verified webhook secret.
+- **CMS / Free Ads:** expose authenticated `GET /api/entitlements` as the source of truth. The membership/portal frontend requests entitlement using the first-party session and renders no ad slot for an active Free Ads entitlement. Reserve the ad-slot layout while checking to avoid page shift. If the legacy CMS cannot consume this integration, use the PRD's documented frontend flag as a temporary fallback; do not put a shared secret in browser code. A server-to-server CMS adapter is a separate integration if required by the CMS owner.
+- **PDF and storage:** master PDFs and temporary watermarked PDFs stay in private storage. Serve only short-lived signed URLs (5 minutes), generate watermarks in a queue, log successful downloads, and clean up temporary files. S3-compatible private storage/CDN is the production target; local private filesystem is acceptable for development.
+- **Privacy gate:** collect and version consent, explain email/hash watermarking before download, and implement access/retention/deletion controls. Legal must approve privacy notice, terms, and retention periods before production use.
+
+### API Contract and Frontend State Conventions
+
+These conventions supplement the endpoint list in PRD §13. Backend owns endpoint implementation, validation, authorization, and API examples; Frontend owns typed API clients, form state, navigation, and rendering. Both teams update this contract when an endpoint changes.
+
+- Base URL is configured by environment; local default is `http://127.0.0.1:8000/api`. JSON uses `application/json`, UTF-8, `snake_case`, integer IDR amounts (never floating-point currency), and ISO 8601 timestamps with an explicit `+07:00` offset. Dates without time use `YYYY-MM-DD`.
+- Successful resources use `{ "data": ... }`; collection pagination uses `{ "data": [...], "meta": { "current_page": 1, "last_page": 1, "per_page": 20, "total": 1 } }`. Empty collections return `data: []` with HTTP 200.
+- Application errors use `{ "error": { "code": "stable_machine_code", "message": "Pesan untuk pengguna", "fields": { "field_name": ["Pesan validasi"] }, "request_id": "..." } }`. `fields` and `request_id` may be omitted when not applicable. Use HTTP 401 unauthenticated, 403 forbidden, 404 missing resource, 409 invalid state/conflict, 422 field/business validation, 429 rate limited, and 5xx unexpected server/gateway failures. Do not return stack traces or provider secrets.
+- Validation and authorization are server-side even when the UI disables an action. Protected routes use the Sanctum session cookie and CSRF token; the payment-provider webhook is public but must pass signature validation and idempotency checks.
+- Existing catalog endpoint: `GET /api/plans?type=&period=` → HTTP 200 `{ "data": [{ "id": 1, "type": "free_ads_epaper", "type_label": "Free Ads & E-Paper", "name": "...", "billing_period": "weekly", "period_label": "Mingguan", "duration_days": 7, "price": 10000, "clipping_quota": 5, "download_limit_per_edition": 3, "download_limit_per_day": 10, "includes_free_ads": true, "includes_epaper": true, "is_recommended": false }] }`. Invalid filters return 422; no matching plans return an empty collection. The catalog is public and cached for at most one minute.
+- Auth endpoints follow PRD §13. `POST /api/auth/register` accepts `{ "name", "email", "password", "password_confirmation", "whatsapp"?: string }` and returns 201 with a user resource and verification-pending state. Login establishes a session; logout returns 204. Protected profile endpoints return/update the current user without password or token fields.
+- `POST /api/orders` requires authentication and accepts `{ "plan_id": number, "voucher_code"?: string }`; server recalculates all prices and returns 201 `{ "data": { "id", "order_number", "subtotal", "discount", "total", "status": "pending", "expires_at" } }`. `POST /api/orders/{id}/pay` accepts the selected supported `method` and returns payment instructions/redirect URL plus expiry. `GET /api/orders/{id}` returns the current payment/order status for the status page. The browser must not decide the payable amount.
+- `POST /api/payments/webhook` accepts only the provider's signed payload. A valid first delivery and a valid duplicate both return HTTP 200 after durable receipt; invalid signatures return 401/403. Activation happens once, asynchronously if needed; the UI polls order status rather than trusting a browser redirect.
+- E-Paper asynchronous generation returns 202 with `{ "data": { "status": "processing", "retry_after_seconds": 2 } }`; a ready file returns a short-lived `download_url` and filename. Locked editions are represented as metadata with `access: "locked"` and never include a page or PDF URL. Quota exhaustion returns 409 with code `download_limit_reached`.
+- Clipping endpoints use `{ "article_ref", "title", "url" }` for create. Successful create returns 201 and quota state; duplicate article or full quota returns 409 with a stable code. List supports page/search; delete returns 204. Expired subscriptions retain read-only clipping for 90 days.
+
+#### Required UI states
+
+| Flow | States and behavior |
+|---|---|
+| Pricing | Loading skeleton; loaded cards; empty catalog with retry/contact link; API error with retry. Never render an API error as an empty successful catalog. |
+| Register/login/profile | Idle, submitting, success, field-level 422 errors, unauthenticated/session-expired, rate-limited 429, and recoverable network/server error. Preserve safe form values; never echo passwords. |
+| Checkout | Loading order, editable voucher, submitting, pending payment instructions/countdown, provider redirect, payment confirmation, expired/cancelled, failed/retry, and general error. Refresh/poll order status; do not mark paid from the redirect alone. |
+| Member dashboard | Loading skeleton, active subscription, no subscription, expired subscription, and API error. Display WIB dates and IDR values consistently. |
+| Clipping | Loading, list, no clips, search no-results, saving, saved with updated quota, full quota, duplicate article, read-only expired state, and retryable error. |
+| E-Paper | Loading, edition list, no editions, unlocked/locked edition, viewer loading/error, download preparing/ready/limit reached, signed URL expired/retry, and offline/server error. Do not expose PDF controls for locked editions. |
+
+All controls are keyboard accessible, announce asynchronous status to screen readers, and preserve WCAG 2.1 AA contrast. Error copy uses Indonesian and describes a recovery action where possible.
