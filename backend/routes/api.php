@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SessionController;
+use App\Http\Controllers\Api\VoucherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +29,12 @@ Route::prefix('auth')->group(function (): void {
         Route::get('sessions', [SessionController::class, 'index']);
         Route::delete('sessions/{session}', [SessionController::class, 'destroy']);
     });
+});
+
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::post('vouchers/validate', [VoucherController::class, 'validateCode'])->middleware('throttle:10,1');
+    Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
+    Route::get('orders/{order}', [OrderController::class, 'show']);
 });
 
 Route::get('/user', function (Request $request) {

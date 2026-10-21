@@ -20,7 +20,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-03, US-B1.*
 - [x] **Membangun API autentikasi dan profil** *(bagian backend dari `implement-user-auth`)* — Register, verifikasi email, login/logout, lupa/reset sandi, profil/avatar/WhatsApp dan ganti sandi; rate limit. Endpoint terlindungi memakai abstraksi guard `auth:sanctum`; konfigurasi sesi, cookie, token, dan domain tetap dapat disesuaikan IT tanpa mengubah modul bisnis. UI frontend masih belum dikerjakan.  
   *PRD: FR-01–02, US-A1–A4, §11.3.*
-- [ ] **Membangun API checkout, order, dan voucher** *(`implement-checkout-orders-vouchers`)* — Buat order, validasi voucher/kuota/masa berlaku, hitung subtotal-diskon-total, tolak voucher gabungan, dan kedaluwarsakan pending order setelah 24 jam.  
+- [x] **Membangun API checkout, order, dan voucher** *(`implement-checkout-orders-vouchers`)* — `POST /api/vouchers/validate` dan `POST`/`GET /api/orders` tervalidasi dan owner-scoped; jumlah diskon dihitung server, satu voucher per order, kuota voucher direservasi secara transaksional dan dilepas saat order pending kedaluwarsa setelah 24 jam melalui scheduler. Integrasi pembayaran tetap task terpisah.  
   *PRD: FR-04, FR-15, US-B2, US-B5, §15.*
 - [ ] **Mengintegrasikan gateway dan webhook pembayaran** *(`integrate-payment-gateway`)* — Adapter gateway terpilih, pembuatan transaksi/metode bayar, verifikasi signature webhook, idempotensi, retry/queue, rekonsiliasi dan cek status. Jangan simpan data kartu.  
   *PRD: FR-04–05, US-B3, §18.*
