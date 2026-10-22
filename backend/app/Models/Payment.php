@@ -1,5 +1,7 @@
 <?php
+
 // app/Models/Payment.php
+
 namespace App\Models;
 
 use App\Enums\PaymentStatus;
@@ -16,6 +18,7 @@ class Payment extends Model
             'status' => PaymentStatus::class,
             'paid_at' => 'datetime',
             'raw_payload' => 'array',
+            'amount' => 'integer',
         ];
     }
 

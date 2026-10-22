@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SessionController;
+use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\VoucherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,7 +37,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('vouchers/validate', [VoucherController::class, 'validateCode'])->middleware('throttle:10,1');
     Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
     Route::get('orders/{order}', [OrderController::class, 'show']);
+    Route::post('orders/{order}/pay', [PaymentController::class, 'pay'])->middleware('throttle:10,1');
+    Route::get('orders/{order}/payment-status', [PaymentController::class, 'status'])->middleware('throttle:20,1');
+    Route::get('subscriptions', [SubscriptionController::class, 'index']);
 });
+
+Route::post('payments/webhook', [PaymentController::class, 'webhook']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();

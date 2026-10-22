@@ -28,6 +28,9 @@ class OrderResource extends JsonResource
             'discount' => $this->discount,
             'total' => $this->total,
             'status' => $this->status->value,
+            'payment' => $this->relationLoaded('payments') && $this->payments->isNotEmpty()
+                ? PaymentResource::make($this->payments->first())
+                : null,
             'expires_at' => $this->expires_at->timezone('Asia/Jakarta')->toIso8601String(),
             'created_at' => $this->created_at->timezone('Asia/Jakarta')->toIso8601String(),
         ];

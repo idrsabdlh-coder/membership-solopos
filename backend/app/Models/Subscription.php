@@ -1,5 +1,7 @@
 <?php
+
 // app/Models/Subscription.php
+
 namespace App\Models;
 
 use App\Enums\SubscriptionStatus;
@@ -23,6 +25,7 @@ class Subscription extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', SubscriptionStatus::Active)
+            ->where('start_date', '<=', now())
             ->where('end_date', '>=', now());
     }
 

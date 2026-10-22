@@ -2,9 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\PaymentGatewayInterface;
+use App\Events\OrderPaid;
+use App\Listeners\ActivateSubscriptionAfterPayment;
+use App\Services\MidtransSnapGateway;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -16,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(PaymentGatewayInterface::class, MidtransSnapGateway::class);
     }
 
     /**
@@ -24,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(OrderPaid::class, ActivateSubscriptionAfterPayment::class);
+
         RateLimiter::for('auth-login', function (Request $request): array {
             $email = $request->input('email');
             $email = is_string($email) ? Str::lower($email) : '';

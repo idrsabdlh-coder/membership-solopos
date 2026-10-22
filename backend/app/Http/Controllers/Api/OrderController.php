@@ -34,11 +34,15 @@ class OrderController extends Controller
     {
         $order = Order::query()
             ->where('user_id', $request->user()->getKey())
-            ->with(['plan', 'voucher'])
+            ->with(['plan', 'voucher', 'payments' => fn ($query) => $query->latest('id')])
             ->findOrFail($order);
 
         $orders->expirePendingOrders($order->id);
 
-        return OrderResource::make($order->fresh(['plan', 'voucher']));
+        return OrderResource::make($order->fresh([
+            'plan',
+            'voucher',
+            'payments' => fn ($query) => $query->latest('id'),
+        ]));
     }
 }

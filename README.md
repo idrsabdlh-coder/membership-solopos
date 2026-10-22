@@ -53,7 +53,11 @@ Autentikasi browser memakai cookie session Sanctum. Sebelum login, frontend perl
 
 Order pending kedaluwarsa setelah 24 jam. Di production, jadwalkan `php artisan schedule:run` setiap menit agar order kedaluwarsa dan reservasi kuota voucher dilepas oleh task `orders:expire-pending`.
 
+Pembayaran sukses membuat satu record langganan secara idempoten. Perpanjangan saat masa aktif masih berjalan dijadwalkan mulai setelah `end_date`; langganan yang telah berakhir mulai saat pembayaran sukses. Jalankan `php artisan schedule:run` setiap menit untuk mengaktifkan masa langganan terjadwal dan menandai langganan berakhir. `GET /api/subscriptions` menampilkan status saat ini, riwayat, dan entitlement paket untuk akun yang login.
+
 Kontrol perangkat menggunakan database session store (`SESSION_DRIVER=database`): satu akun dibatasi maksimal dua sesi aktif. Sesi tertua dicabut saat login ketiga, dan sesi lain dapat dicabut dari halaman `/pengaturan`. Produksi harus memakai database session store yang sama pada seluruh instance aplikasi.
+
+Pembayaran memakai Midtrans Snap hosted redirect. Untuk sandbox, isi `MIDTRANS_SERVER_KEY` dan `MIDTRANS_CLIENT_KEY` di `.env`, pertahankan `MIDTRANS_IS_PRODUCTION=false`, lalu jalankan worker dengan `php artisan queue:work`. Atur URL notifikasi di dashboard Midtrans ke `https://<api-host>/api/payments/webhook`. Endpoint bayar hanya menerima metode dan nominal yang dihitung server; jangan menyimpan atau mengirim data kartu. Jangan aktifkan mode production sebelum akun merchant, webhook, biaya/refund, dan persetujuan operasional diverifikasi.
 
 ## Pemeriksaan
 
