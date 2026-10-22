@@ -26,7 +26,7 @@ class Subscription extends Model
     {
         return $query->where('status', SubscriptionStatus::Active)
             ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now());
+            ->where('end_date', '>', now());
     }
 
     public function user(): BelongsTo

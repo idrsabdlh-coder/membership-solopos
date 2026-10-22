@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\EntitlementController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlanController;
@@ -40,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('orders/{order}/pay', [PaymentController::class, 'pay'])->middleware('throttle:10,1');
     Route::get('orders/{order}/payment-status', [PaymentController::class, 'status'])->middleware('throttle:20,1');
     Route::get('subscriptions', [SubscriptionController::class, 'index']);
+    Route::get('entitlements', [EntitlementController::class, 'show']);
 });
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook']);
