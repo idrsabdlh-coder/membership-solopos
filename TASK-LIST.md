@@ -28,7 +28,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-06–07, FR-12–14, US-B4, US-G1–G3, §6.3, §15.*
 - [x] **Menyediakan entitlement Free Ads untuk CMS** *(bagian backend dari `integrate-cms-free-ads`)* — `GET /api/entitlements` terautentikasi menjadi sumber kebenaran untuk membership/portal: owner-scoped, hanya mengembalikan hak Free Ads saat langganan aktif, memberi false/zero setelah expiry, dan melarang shared cache. Integrasi aktual pada CMS legacy/server-to-server tetap perlu kontrak dan persetujuan tim CMS; tidak ada shared secret di browser.
   *PRD: FR-08, US-D1–D2, §11.2.*
-- [ ] **Membangun API clipping dan kuota** *(bagian backend dari `implement-clipping`)* — Simpan/daftar/cari/hapus, cegah artikel duplikat, validasi kuota paket aktif dan pertahankan clipping read-only 90 hari setelah expiry.  
+- [x] **Membangun API clipping dan kuota** *(bagian backend dari `implement-clipping`)* — Endpoint owner-scoped untuk simpan/daftar/cari/hapus; create hanya saat paket aktif memiliki kuota clipping, kuota dihitung transaksional per masa langganan, duplikat artikel ditolak, dan data langganan berakhir tersedia read-only selama 90 hari. Mengembalikan metadata pemakaian/sisa kuota dan error code stabil untuk konflik.
   *PRD: FR-11, US-F1–F2, §15.*
 - [ ] **Membangun ingestion dan pengelolaan edisi E-Paper** *(bagian backend dari `implement-epaper-management`)* — Upload master privat, validasi PDF, metadata dan rentang edisi gabungan, checksum, hitung halaman, cover/thumbnail, status publish.  
   *PRD: FR-25, US-E6, §22.*

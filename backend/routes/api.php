@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ClippingController;
 use App\Http\Controllers\Api\EntitlementController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
@@ -42,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('orders/{order}/payment-status', [PaymentController::class, 'status'])->middleware('throttle:20,1');
     Route::get('subscriptions', [SubscriptionController::class, 'index']);
     Route::get('entitlements', [EntitlementController::class, 'show']);
+    Route::get('clippings', [ClippingController::class, 'index']);
+    Route::post('clippings', [ClippingController::class, 'store'])->middleware('throttle:30,1');
+    Route::delete('clippings/{clipping}', [ClippingController::class, 'destroy']);
 });
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook']);
