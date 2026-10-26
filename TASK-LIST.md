@@ -30,7 +30,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-08, US-D1–D2, §11.2.*
 - [x] **Membangun API clipping dan kuota** *(bagian backend dari `implement-clipping`)* — Endpoint owner-scoped untuk simpan/daftar/cari/hapus; create hanya saat paket aktif memiliki kuota clipping, kuota dihitung transaksional per masa langganan, duplikat artikel ditolak, dan data langganan berakhir tersedia read-only selama 90 hari. Mengembalikan metadata pemakaian/sisa kuota dan error code stabil untuk konflik.
   *PRD: FR-11, US-F1–F2, §15.*
-- [ ] **Membangun ingestion dan pengelolaan edisi E-Paper** *(bagian backend dari `implement-epaper-management`)* — Upload master privat, validasi PDF, metadata dan rentang edisi gabungan, checksum, hitung halaman, cover/thumbnail, status publish.  
+- [x] **Membangun ingestion dan pengelolaan edisi E-Paper** *(bagian backend dari `implement-epaper-management`)* — API admin ber-allowlist email terverifikasi untuk ingest master PDF privat dan thumbnail cover, validasi struktur PDF, SHA-256/ukuran/jumlah halaman, metadata tanggal edisi (termasuk edisi gabungan Sabtu-Minggu), edit draft, dan publish eksplisit. Resource tidak membocorkan path penyimpanan; akses staf umum tetap task backoffice terpisah.
   *PRD: FR-25, US-E6, §22.*
 - [ ] **Membangun API reader dan unduhan E-Paper** *(bagian backend dari `implement-epaper-access-download`)* — Daftar/filter edisi, akses berdasarkan irisan rentang tanggal, akses halaman bertanda tangan, PDF ber-watermark email + hash unik 32 hex pada tiap halaman, nama file, signed URL 5 menit, queue/cache/cleanup, batas unduhan dan log IP/perangkat/hash.  
   *PRD: FR-09–10, FR-21–24, US-E1–E5, §6.3, §22.*

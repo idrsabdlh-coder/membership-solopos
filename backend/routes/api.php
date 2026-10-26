@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\EpaperEditionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClippingController;
 use App\Http\Controllers\Api\EntitlementController;
@@ -47,6 +48,16 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('clippings', [ClippingController::class, 'store'])->middleware('throttle:30,1');
     Route::delete('clippings/{clipping}', [ClippingController::class, 'destroy']);
 });
+
+Route::prefix('admin/epaper/editions')
+    ->middleware(['auth:sanctum', 'epaper-admin'])
+    ->group(function (): void {
+        Route::get('/', [EpaperEditionController::class, 'index']);
+        Route::post('/', [EpaperEditionController::class, 'store'])->middleware('throttle:10,1');
+        Route::get('/{edition}', [EpaperEditionController::class, 'show']);
+        Route::patch('/{edition}', [EpaperEditionController::class, 'update']);
+        Route::post('/{edition}/publish', [EpaperEditionController::class, 'publish']);
+    });
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook']);
 
