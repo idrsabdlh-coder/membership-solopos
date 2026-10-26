@@ -32,7 +32,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-11, US-F1–F2, §15.*
 - [x] **Membangun ingestion dan pengelolaan edisi E-Paper** *(bagian backend dari `implement-epaper-management`)* — API admin ber-allowlist email terverifikasi untuk ingest master PDF privat dan thumbnail cover, validasi struktur PDF, SHA-256/ukuran/jumlah halaman, metadata tanggal edisi (termasuk edisi gabungan Sabtu-Minggu), edit draft, dan publish eksplisit. Resource tidak membocorkan path penyimpanan; akses staf umum tetap task backoffice terpisah.
   *PRD: FR-25, US-E6, §22.*
-- [ ] **Membangun API reader dan unduhan E-Paper** *(bagian backend dari `implement-epaper-access-download`)* — Daftar/filter edisi, akses berdasarkan irisan rentang tanggal, akses halaman bertanda tangan, PDF ber-watermark email + hash unik 32 hex pada tiap halaman, nama file, signed URL 5 menit, queue/cache/cleanup, batas unduhan dan log IP/perangkat/hash.  
+- [x] **Membangun API reader dan unduhan E-Paper** *(bagian backend dari `implement-epaper-access-download`)* — Daftar/filter edisi dan cover privat; otorisasi reader/unduhan berdasarkan langganan E-Paper aktif serta irisan tanggal WIB; URL halaman dan file bertanda tangan 5 menit; PDF asynchronous ber-watermark email + hash unik 32 hex di setiap halaman; batas plan/default per edisi dan per hari WIB, riwayat owner-scoped dengan IP/perangkat/hash, serta cleanup berkala tanpa menghapus audit.
   *PRD: FR-09–10, FR-21–24, US-E1–E5, §6.3, §22.*
 - [ ] **Membangun API invoice, riwayat, dan upgrade** *(bagian backend dari `member-history-upgrade`)* — Riwayat order/pembayaran/langganan, invoice unduhan, perbandingan dan harga upgrade sesuai keputusan prorata/kredit.  
   *PRD: FR-13–14, US-G1–G2.*
