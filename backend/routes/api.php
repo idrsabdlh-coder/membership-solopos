@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SessionController;
 use App\Http\Controllers\Api\SubscriptionController;
+use App\Http\Controllers\Api\SubscriptionUpgradeController;
+use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\VoucherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -55,10 +57,17 @@ Route::prefix('auth')->group(function (): void {
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('vouchers/validate', [VoucherController::class, 'validateCode'])->middleware('throttle:10,1');
     Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
+    Route::get('orders', [TransactionController::class, 'index']);
     Route::get('orders/{order}', [OrderController::class, 'show']);
+    Route::get('orders/{order}/invoice', [TransactionController::class, 'invoice'])
+        ->whereNumber('order')
+        ->name('api.orders.invoice');
     Route::post('orders/{order}/pay', [PaymentController::class, 'pay'])->middleware('throttle:10,1');
     Route::get('orders/{order}/payment-status', [PaymentController::class, 'status'])->middleware('throttle:20,1');
     Route::get('subscriptions', [SubscriptionController::class, 'index']);
+    Route::get('subscriptions/history', [TransactionController::class, 'subscriptionHistory']);
+    Route::post('subscription/upgrade/quote', [SubscriptionUpgradeController::class, 'quote'])->middleware('throttle:10,1');
+    Route::post('subscription/upgrade', [SubscriptionUpgradeController::class, 'store'])->middleware('throttle:10,1');
     Route::get('entitlements', [EntitlementController::class, 'show']);
     Route::get('clippings', [ClippingController::class, 'index']);
     Route::post('clippings', [ClippingController::class, 'store'])->middleware('throttle:30,1');

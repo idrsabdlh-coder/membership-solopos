@@ -29,6 +29,33 @@ class SubscriptionLifecycleService
                 return $existing;
             }
 
+            if ($lockedOrder->upgrade_from_subscription_id !== null) {
+                $startsAt = now();
+                $replacedSubscription = Subscription::query()
+                    ->whereKey($lockedOrder->upgrade_from_subscription_id)
+                    ->where('user_id', $lockedOrder->user_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $replacedSubscription->update([
+                    'status' => SubscriptionStatus::Cancelled,
+                    'end_date' => $startsAt,
+                ]);
+
+                $endsAt = $startsAt->copy()->addDays($lockedOrder->plan->duration_days);
+
+                return Subscription::query()->create([
+                    'user_id' => $lockedOrder->user_id,
+                    'plan_id' => $lockedOrder->plan_id,
+                    'source_order_id' => $lockedOrder->id,
+                    'status' => $endsAt->isFuture()
+                        ? SubscriptionStatus::Active
+                        : SubscriptionStatus::Expired,
+                    'start_date' => $startsAt,
+                    'end_date' => $endsAt,
+                ]);
+            }
+
             $startsAt = $payment->paid_at ?? now();
             $previousSubscription = Subscription::query()
                 ->where('user_id', $lockedOrder->user_id)

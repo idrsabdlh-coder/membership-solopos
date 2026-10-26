@@ -34,7 +34,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-25, US-E6, §22.*
 - [x] **Membangun API reader dan unduhan E-Paper** *(bagian backend dari `implement-epaper-access-download`)* — Daftar/filter edisi dan cover privat; otorisasi reader/unduhan berdasarkan langganan E-Paper aktif serta irisan tanggal WIB; URL halaman dan file bertanda tangan 5 menit; PDF asynchronous ber-watermark email + hash unik 32 hex di setiap halaman; batas plan/default per edisi dan per hari WIB, riwayat owner-scoped dengan IP/perangkat/hash, serta cleanup berkala tanpa menghapus audit.
   *PRD: FR-09–10, FR-21–24, US-E1–E5, §6.3, §22.*
-- [ ] **Membangun API invoice, riwayat, dan upgrade** *(bagian backend dari `member-history-upgrade`)* — Riwayat order/pembayaran/langganan, invoice unduhan, perbandingan dan harga upgrade sesuai keputusan prorata/kredit.  
+- [x] **Membangun API invoice, riwayat, dan upgrade** *(bagian backend dari `member-history-upgrade`)* — Riwayat order/pembayaran/langganan owner-scoped, invoice PDF unduhan, serta quote/order upgrade dengan kredit prorata, validasi entitlement, dan aktivasi segera setelah pembayaran (termasuk tagihan nol rupiah).
   *PRD: FR-13–14, US-G1–G2.*
 - [ ] **Membangun backoffice dan akses staf** *(bagian backend/admin dari `build-backoffice`)* — Role/otorisasi staf; kelola paket, harga, kuota, voucher dan edisi; lihat pelanggan/order/payment; ekspor laporan dan audit tindakan. Teknologi UI admin (mis. Filament) diputuskan saat discovery.  
   *PRD: FR-20, §5.1.*

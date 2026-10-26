@@ -41,8 +41,25 @@ class OrderService
 
     public function create(User $user, int $planId, ?string $voucherCode): Order
     {
+        $this->expirePendingOrders();
+
         return DB::transaction(function () use ($user, $planId, $voucherCode): Order {
-            $this->expirePendingOrders();
+            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
+
+            $hasPendingUpgrade = Order::query()
+                ->where('user_id', $user->getKey())
+                ->whereNotNull('upgrade_from_subscription_id')
+                ->where(function ($query): void {
+                    $query->where(function ($pendingOrder): void {
+                        $pendingOrder->where('status', OrderStatus::Pending)
+                            ->where('expires_at', '>', now());
+                    })->orWhereHas('payments', fn ($payments) => $payments->where('status', 'pending'));
+                })
+                ->exists();
+
+            if ($hasPendingUpgrade) {
+                abort(409, 'Selesaikan atau tunggu kedaluwarsa pesanan upgrade yang masih tertunda.');
+            }
 
             $plan = Plan::query()->whereKey($planId)->lockForUpdate()->first();
 

@@ -125,8 +125,11 @@ class PaymentController extends Controller
             abort(404, 'Pesanan belum memiliki transaksi pembayaran.');
         }
 
+        $canReconcileExpiredUpgrade = $orderModel->status === OrderStatus::Expired
+            && $orderModel->upgrade_from_subscription_id !== null;
+
         if ($payment->status === PaymentStatus::Pending
-            && $orderModel->status === OrderStatus::Pending
+            && ($orderModel->status === OrderStatus::Pending || $canReconcileExpiredUpgrade)
             && $payment->merchant_order_id) {
             try {
                 $providerStatus = $gateway->fetchStatus($payment->merchant_order_id);

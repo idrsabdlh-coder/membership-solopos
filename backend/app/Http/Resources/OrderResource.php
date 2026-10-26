@@ -26,11 +26,14 @@ class OrderResource extends JsonResource
             ] : null,
             'subtotal' => $this->subtotal,
             'discount' => $this->discount,
+            'upgrade_credit' => $this->upgrade_credit,
             'total' => $this->total,
+            'type' => $this->upgrade_from_subscription_id !== null ? 'upgrade' : 'subscription',
             'status' => $this->status->value,
             'payment' => $this->relationLoaded('payments') && $this->payments->isNotEmpty()
                 ? PaymentResource::make($this->payments->first())
                 : null,
+            'invoice_url' => route('api.orders.invoice', $this->id),
             'expires_at' => $this->expires_at->timezone('Asia/Jakarta')->toIso8601String(),
             'created_at' => $this->created_at->timezone('Asia/Jakarta')->toIso8601String(),
         ];
