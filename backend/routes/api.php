@@ -4,8 +4,6 @@ use App\Http\Controllers\Api\Admin\EpaperEditionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClippingController;
 use App\Http\Controllers\Api\EntitlementController;
-use App\Http\Controllers\Api\EpaperDownloadController;
-use App\Http\Controllers\Api\EpaperReaderController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlanController;
@@ -17,20 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('plans', [PlanController::class, 'index']);
-
-Route::get('epaper/editions', [EpaperReaderController::class, 'index']);
-Route::get('epaper/editions/{edition}/cover', [EpaperReaderController::class, 'cover'])
-    ->whereNumber('edition')
-    ->name('api.epaper.editions.cover');
-Route::get('epaper/pages/{edition}/{page}', [EpaperReaderController::class, 'pageContent'])
-    ->whereNumber('edition')
-    ->whereNumber('page')
-    ->middleware('signed')
-    ->name('api.epaper.pages.content');
-Route::get('epaper/downloads/{download}/file', [EpaperDownloadController::class, 'file'])
-    ->whereNumber('download')
-    ->middleware('signed')
-    ->name('api.epaper.downloads.file');
 
 Route::prefix('auth')->group(function (): void {
     Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,1');
@@ -63,15 +47,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('clippings', [ClippingController::class, 'index']);
     Route::post('clippings', [ClippingController::class, 'store'])->middleware('throttle:30,1');
     Route::delete('clippings/{clipping}', [ClippingController::class, 'destroy']);
-    Route::get('epaper/editions/{edition}/pages/{page}', [EpaperReaderController::class, 'pageUrl'])
-        ->whereNumber('edition')
-        ->whereNumber('page')
-        ->middleware('throttle:60,1');
-    Route::get('epaper/editions/{edition}/download', [EpaperDownloadController::class, 'store'])
-        ->whereNumber('edition')
-        ->middleware('throttle:10,1');
-    Route::get('epaper/downloads', [EpaperDownloadController::class, 'index']);
-    Route::get('epaper/downloads/{download}', [EpaperDownloadController::class, 'show'])->whereNumber('download');
 });
 
 Route::prefix('admin/epaper/editions')
