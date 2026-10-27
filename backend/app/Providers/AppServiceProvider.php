@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Contracts\PaymentGatewayInterface;
 use App\Events\OrderPaid;
+use App\Events\OrderPaymentStatusChanged;
 use App\Listeners\ActivateSubscriptionAfterPayment;
+use App\Listeners\SendPaymentOutcomeNotification;
 use App\Services\MidtransSnapGateway;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::listen(OrderPaid::class, ActivateSubscriptionAfterPayment::class);
+        Event::listen(OrderPaymentStatusChanged::class, SendPaymentOutcomeNotification::class);
 
         RateLimiter::for('auth-login', function (Request $request): array {
             $email = $request->input('email');

@@ -10,4 +10,8 @@ Artisan::command('inspire', function () {
 
 Schedule::command('orders:expire-pending')->hourly();
 Schedule::command('subscriptions:transition')->everyMinute();
+Schedule::command('subscriptions:send-notifications')
+    ->dailyAt('09:00')
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping();
 Schedule::command('app:cleanup-expired-epaper-downloads')->hourly();

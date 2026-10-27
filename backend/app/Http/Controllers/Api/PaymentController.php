@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Contracts\PaymentGatewayInterface;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Events\OrderPaymentStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PaymentResource;
 use App\Jobs\ProcessPaymentWebhook;
@@ -89,6 +90,8 @@ class PaymentController extends Controller
             $transaction = $gateway->createTransaction($orderModel, $payment);
         } catch (RuntimeException $exception) {
             $payment->update(['status' => PaymentStatus::Failed]);
+            $orderModel = $payment->order()->with(['user', 'plan'])->firstOrFail();
+            OrderPaymentStatusChanged::dispatch($orderModel, $payment->fresh());
             Log::warning('Midtrans transaction creation failed.', [
                 'payment_id' => $payment->id,
                 'order_id' => $payment->order_id,

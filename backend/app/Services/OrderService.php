@@ -14,6 +14,8 @@ use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
+    public function __construct(private readonly NotificationDeliveryService $deliveries) {}
+
     public function quote(Plan $plan, ?string $voucherCode): array
     {
         $this->expirePendingOrders();
@@ -104,6 +106,11 @@ class OrderService
         $query->chunkById(100, function (EloquentCollection $orders) use (&$expiredCount): void {
             DB::transaction(function () use ($orders, &$expiredCount): void {
                 $lockedOrders = Order::query()
+                    ->with([
+                        'user',
+                        'plan',
+                        'payments' => fn ($payments) => $payments->latest('id')->limit(1),
+                    ])
                     ->whereIn('id', $orders->modelKeys())
                     ->where('status', OrderStatus::Pending)
                     ->where('expires_at', '<=', now())
@@ -132,6 +139,11 @@ class OrderService
                         'status' => OrderStatus::Expired->value,
                         'updated_at' => now(),
                     ]);
+
+                foreach ($lockedOrders as $order) {
+                    $order->status = OrderStatus::Expired;
+                    $this->deliveries->queueOrderExpired($order);
+                }
 
                 $expiredCount += $lockedOrders->count();
             }, attempts: 3);

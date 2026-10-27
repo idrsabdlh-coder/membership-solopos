@@ -6,6 +6,7 @@ use App\Contracts\PaymentGatewayInterface;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Events\OrderPaid;
+use App\Events\OrderPaymentStatusChanged;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
@@ -96,7 +97,10 @@ class PaymentStatusProcessor
                 if (! $wasPaid) {
                     $orderPaid = [$order, $payment];
                 }
-            } elseif ($status !== null && $payment->status !== PaymentStatus::Success) {
+            } else {
+                $previousPaymentStatus = $payment->status;
+            }
+            if ($status !== null && $payment->status !== PaymentStatus::Success) {
                 $payment->status = $status;
             }
 
@@ -114,6 +118,11 @@ class PaymentStatusProcessor
             if ($orderPaid) {
                 OrderPaid::dispatch($orderPaid[0], $orderPaid[1]);
                 $orderPaid = null;
+            } elseif ($status !== null
+                && $previousPaymentStatus !== $payment->status
+                && in_array($payment->status, [PaymentStatus::Failed, PaymentStatus::Expired], true)) {
+                $order->loadMissing(['user', 'plan']);
+                OrderPaymentStatusChanged::dispatch($order, $payment);
             }
         }, attempts: 3);
     }

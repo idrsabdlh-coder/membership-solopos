@@ -6,10 +6,13 @@ use App\Enums\SubscriptionStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Subscription;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 
 class SubscriptionLifecycleService
 {
+    public function __construct(private readonly NotificationDeliveryService $deliveries) {}
+
     public function activateFromPayment(Order $order, Payment $payment): Subscription
     {
         return DB::transaction(function () use ($order, $payment): Subscription {
@@ -88,14 +91,40 @@ class SubscriptionLifecycleService
     {
         $now = now();
 
-        $expired = Subscription::query()
+        $expired = 0;
+        Subscription::query()
             ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::Pending])
             ->where('end_date', '<=', $now)
             ->when($userId, fn ($query) => $query->where('user_id', $userId))
-            ->update([
-                'status' => SubscriptionStatus::Expired->value,
-                'updated_at' => $now,
-            ]);
+            ->orderBy('id')
+            ->chunkById(100, function (EloquentCollection $subscriptions) use (&$expired, $now): void {
+                DB::transaction(function () use ($subscriptions, &$expired, $now): void {
+                    $lockedSubscriptions = Subscription::query()
+                        ->with(['user', 'plan'])
+                        ->whereIn('id', $subscriptions->modelKeys())
+                        ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::Pending])
+                        ->where('end_date', '<=', $now)
+                        ->lockForUpdate()
+                        ->get();
+
+                    foreach ($lockedSubscriptions as $subscription) {
+                        $subscription->status = SubscriptionStatus::Expired;
+                        $subscription->save();
+
+                        $hasRenewal = Subscription::query()
+                            ->where('user_id', $subscription->user_id)
+                            ->where('id', '!=', $subscription->id)
+                            ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::Pending])
+                            ->where('end_date', '>', $subscription->end_date)
+                            ->exists();
+                        if (! $hasRenewal) {
+                            $this->deliveries->queueSubscriptionNotice($subscription, 'subscription.expired');
+                        }
+                    }
+
+                    $expired += $lockedSubscriptions->count();
+                }, attempts: 3);
+            });
 
         $activated = Subscription::query()
             ->where('status', SubscriptionStatus::Pending)

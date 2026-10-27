@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use FPDF;
 use Illuminate\Support\Str;
@@ -10,6 +12,7 @@ class InvoiceService
 {
     public function generate(Order $order): string
     {
+        $payment = $order->payments->first();
         $pdf = new FPDF('P', 'mm', 'A4');
         $pdf->AddPage();
         $pdf->SetFont('Arial', 'B', 18);
@@ -56,12 +59,14 @@ class InvoiceService
             $this->amountRow($pdf, 'Kredit prorata yang diterapkan', -min($order->upgrade_credit, $order->subtotal));
         }
 
-        $this->amountRow($pdf, 'Total dibayar', $order->total, bold: true);
+        $totalLabel = $order->status === OrderStatus::Paid || $payment?->status === PaymentStatus::Success
+            ? 'Total dibayar'
+            : 'Total tagihan';
+        $this->amountRow($pdf, $totalLabel, $order->total, bold: true);
         $pdf->Ln(5);
 
         $pdf->SetFont('Arial', '', 10);
         $pdf->MultiCell(0, 6, $this->text('Status pesanan: '.$order->status->value));
-        $payment = $order->payments->first();
         $pdf->MultiCell(0, 6, $this->text('Status pembayaran: '.($payment?->status->value ?? 'belum ada')));
 
         if ($payment) {
