@@ -14,7 +14,8 @@ class EnsureEpaperAdministrator
         $email = strtolower((string) $user?->email);
         $adminEmails = config('epaper.admin_emails', []);
 
-        if (! $user || ! $user->hasVerifiedEmail() || ! in_array($email, $adminEmails, true)) {
+        if (! $user || ! $user->hasVerifiedEmail()
+            || (! $user->isBackofficeAdmin() && ! in_array($email, $adminEmails, true))) {
             return response()->json([
                 'error' => [
                     'code' => 'epaper_admin_required',

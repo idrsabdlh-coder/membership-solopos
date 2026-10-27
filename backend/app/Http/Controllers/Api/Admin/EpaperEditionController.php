@@ -6,6 +6,8 @@ use App\Enums\EditionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EpaperEditionResource;
 use App\Models\EpaperEdition;
+use App\Models\User;
+use App\Services\BackofficeAuditService;
 use App\Services\EpaperPdfInspector;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,8 +50,11 @@ class EpaperEditionController extends Controller
         ]);
     }
 
-    public function store(Request $request, EpaperPdfInspector $pdfInspector): JsonResponse
-    {
+    public function store(
+        Request $request,
+        EpaperPdfInspector $pdfInspector,
+        BackofficeAuditService $audit,
+    ): JsonResponse {
         $validated = $request->validate([
             'edition_number' => ['required', 'integer', 'min:1', 'max:4294967295'],
             'edition_year' => ['required', 'integer', 'min:2000', 'max:65535'],
@@ -91,18 +96,40 @@ class EpaperEditionController extends Controller
                 }
             }
 
-            $edition = DB::transaction(fn (): EpaperEdition => EpaperEdition::query()->create([
-                'edition_number' => $validated['edition_number'],
-                'edition_year' => $validated['edition_year'],
-                'publish_date' => $validated['publish_date'],
-                'publish_end_date' => $validated['publish_end_date'],
-                'master_pdf_path' => $masterPath,
-                'checksum' => $checksum,
-                'file_size' => $fileSize,
-                'cover_path' => $coverPath,
-                'page_count' => $pageCount,
-                'status' => EditionStatus::Draft,
-            ]));
+            /** @var User $actor */
+            $actor = $request->user();
+            $edition = DB::transaction(function () use (
+                $validated,
+                $masterPath,
+                $checksum,
+                $fileSize,
+                $coverPath,
+                $pageCount,
+                $actor,
+                $request,
+                $audit,
+            ): EpaperEdition {
+                $edition = EpaperEdition::query()->create([
+                    'edition_number' => $validated['edition_number'],
+                    'edition_year' => $validated['edition_year'],
+                    'publish_date' => $validated['publish_date'],
+                    'publish_end_date' => $validated['publish_end_date'],
+                    'master_pdf_path' => $masterPath,
+                    'checksum' => $checksum,
+                    'file_size' => $fileSize,
+                    'cover_path' => $coverPath,
+                    'page_count' => $pageCount,
+                    'status' => EditionStatus::Draft,
+                ]);
+
+                $audit->record($actor, $request, 'epaper_edition.created', 'epaper_edition', $edition->id, [
+                    'edition_number' => $edition->edition_number,
+                    'edition_year' => $edition->edition_year,
+                    'status' => $edition->status->value,
+                ]);
+
+                return $edition;
+            });
         } catch (Throwable $exception) {
             foreach ($storedPaths as $path) {
                 $disk->delete($path);
@@ -123,8 +150,11 @@ class EpaperEditionController extends Controller
         ]);
     }
 
-    public function update(Request $request, EpaperEdition $edition): JsonResponse
-    {
+    public function update(
+        Request $request,
+        EpaperEdition $edition,
+        BackofficeAuditService $audit,
+    ): JsonResponse {
         if ($edition->status !== EditionStatus::Draft) {
             return $this->conflict('published_edition_locked', 'Edisi terbit tidak dapat diubah.');
         }
@@ -154,15 +184,50 @@ class EpaperEditionController extends Controller
             $edition->id
         );
 
-        $edition->fill($validated)->save();
+        /** @var User $actor */
+        $actor = $request->user();
+        $result = DB::transaction(function () use ($edition, $validated, $actor, $request, $audit): EpaperEdition|JsonResponse {
+            $lockedEdition = EpaperEdition::query()->whereKey($edition->id)->lockForUpdate()->firstOrFail();
+            if ($lockedEdition->status !== EditionStatus::Draft) {
+                return $this->conflict('published_edition_locked', 'Edisi terbit tidak dapat diubah.');
+            }
+
+            $before = [
+                'edition_number' => $lockedEdition->edition_number,
+                'edition_year' => $lockedEdition->edition_year,
+                'publish_date' => $lockedEdition->publish_date->toDateString(),
+                'publish_end_date' => $lockedEdition->publish_end_date->toDateString(),
+            ];
+            $lockedEdition->fill($validated)->save();
+            $lockedEdition->refresh();
+
+            $audit->record($actor, $request, 'epaper_edition.updated', 'epaper_edition', $lockedEdition->id, [
+                'before' => $before,
+                'after' => [
+                    'edition_number' => $lockedEdition->edition_number,
+                    'edition_year' => $lockedEdition->edition_year,
+                    'publish_date' => $lockedEdition->publish_date->toDateString(),
+                    'publish_end_date' => $lockedEdition->publish_end_date->toDateString(),
+                ],
+            ]);
+
+            return $lockedEdition;
+        });
+
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
 
         return response()->json([
-            'data' => EpaperEditionResource::make($edition->refresh())->resolve($request),
+            'data' => EpaperEditionResource::make($result)->resolve($request),
         ]);
     }
 
-    public function publish(Request $request, EpaperEdition $edition): JsonResponse
-    {
+    public function publish(
+        Request $request,
+        EpaperEdition $edition,
+        BackofficeAuditService $audit,
+    ): JsonResponse {
         if ($edition->status === EditionStatus::Published) {
             return response()->json([
                 'data' => EpaperEditionResource::make($edition)->resolve($request),
@@ -197,11 +262,27 @@ class EpaperEditionController extends Controller
             return $this->conflict('master_checksum_mismatch', 'Checksum file master tidak sesuai; edisi tidak dapat diterbitkan.');
         }
 
-        $edition->status = EditionStatus::Published;
-        $edition->save();
+        /** @var User $actor */
+        $actor = $request->user();
+        $publishedEdition = DB::transaction(function () use ($edition, $actor, $request, $audit): EpaperEdition {
+            $lockedEdition = EpaperEdition::query()->whereKey($edition->id)->lockForUpdate()->firstOrFail();
+            if ($lockedEdition->status === EditionStatus::Published) {
+                return $lockedEdition;
+            }
+
+            $lockedEdition->status = EditionStatus::Published;
+            $lockedEdition->save();
+            $lockedEdition->refresh();
+            $audit->record($actor, $request, 'epaper_edition.published', 'epaper_edition', $lockedEdition->id, [
+                'edition_number' => $lockedEdition->edition_number,
+                'edition_year' => $lockedEdition->edition_year,
+            ]);
+
+            return $lockedEdition;
+        });
 
         return response()->json([
-            'data' => EpaperEditionResource::make($edition->refresh())->resolve($request),
+            'data' => EpaperEditionResource::make($publishedEdition)->resolve($request),
         ]);
     }
 

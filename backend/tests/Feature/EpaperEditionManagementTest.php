@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Enums\EditionStatus;
 use App\Models\EpaperEdition;
 use App\Models\User;
+use App\Services\BackofficeAuditService;
 use FPDF;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 use Tests\TestCase;
 
 class EpaperEditionManagementTest extends TestCase
@@ -89,6 +91,27 @@ class EpaperEditionManagementTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('master_pdf');
+
+        $this->assertDatabaseCount('epaper_editions', 0);
+        Storage::disk('local')->assertDirectoryEmpty('epaper/masters');
+    }
+
+    public function test_ingested_files_are_removed_when_audit_recording_fails(): void
+    {
+        $audit = $this->mock(BackofficeAuditService::class);
+        $audit->shouldReceive('record')
+            ->once()
+            ->andThrow(new RuntimeException('Audit storage unavailable.'));
+
+        $this->actingAs($this->admin(), 'sanctum')
+            ->post('/api/admin/epaper/editions', [
+                'edition_number' => 302,
+                'edition_year' => 2026,
+                'publish_date' => '2026-10-24',
+                'publish_end_date' => '2026-10-25',
+                'master_pdf' => $this->pdfWithPages(1),
+            ])
+            ->assertServerError();
 
         $this->assertDatabaseCount('epaper_editions', 0);
         Storage::disk('local')->assertDirectoryEmpty('epaper/masters');

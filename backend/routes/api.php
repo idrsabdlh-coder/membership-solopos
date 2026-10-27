@@ -1,6 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AuditLogController;
+use App\Http\Controllers\Api\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Api\Admin\EpaperEditionController;
+use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Api\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
+use App\Http\Controllers\Api\Admin\ReportController;
+use App\Http\Controllers\Api\Admin\StaffRoleController;
+use App\Http\Controllers\Api\Admin\VoucherManagementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClippingController;
 use App\Http\Controllers\Api\EntitlementController;
@@ -91,6 +99,31 @@ Route::prefix('admin/epaper/editions')
         Route::get('/{edition}', [EpaperEditionController::class, 'show']);
         Route::patch('/{edition}', [EpaperEditionController::class, 'update']);
         Route::post('/{edition}/publish', [EpaperEditionController::class, 'publish']);
+    });
+
+Route::prefix('admin')
+    ->middleware(['auth:sanctum', 'backoffice:staff'])
+    ->group(function (): void {
+        Route::get('customers', [AdminCustomerController::class, 'index']);
+        Route::get('customers/{customer}', [AdminCustomerController::class, 'show'])->whereNumber('customer');
+        Route::get('orders', [AdminOrderController::class, 'index']);
+        Route::get('payments', [AdminPaymentController::class, 'index']);
+        Route::get('reports/customers.csv', [ReportController::class, 'customers'])->middleware('throttle:10,1');
+        Route::get('reports/transactions.csv', [ReportController::class, 'transactions'])->middleware('throttle:10,1');
+
+        Route::middleware('backoffice:admin')->group(function (): void {
+            Route::patch('users/{user}/role', [StaffRoleController::class, 'update'])->whereNumber('user');
+            Route::get('audit-logs', [AuditLogController::class, 'index']);
+            Route::get('plans', [AdminPlanController::class, 'index']);
+            Route::post('plans', [AdminPlanController::class, 'store'])->middleware('throttle:10,1');
+            Route::get('plans/{plan}', [AdminPlanController::class, 'show'])->whereNumber('plan');
+            Route::patch('plans/{plan}', [AdminPlanController::class, 'update'])->whereNumber('plan');
+            Route::get('vouchers', [VoucherManagementController::class, 'index']);
+            Route::post('vouchers', [VoucherManagementController::class, 'store'])->middleware('throttle:10,1');
+            Route::get('vouchers/{voucher}', [VoucherManagementController::class, 'show'])->whereNumber('voucher');
+            Route::patch('vouchers/{voucher}', [VoucherManagementController::class, 'update'])->whereNumber('voucher');
+            Route::delete('vouchers/{voucher}', [VoucherManagementController::class, 'destroy'])->whereNumber('voucher');
+        });
     });
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook']);

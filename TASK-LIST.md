@@ -36,7 +36,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-09–10, FR-21–24, US-E1–E5, §6.3, §22.*
 - [x] **Membangun API invoice, riwayat, dan upgrade** *(bagian backend dari `member-history-upgrade`)* — Riwayat order/pembayaran/langganan owner-scoped, invoice PDF unduhan, serta quote/order upgrade dengan kredit prorata, validasi entitlement, dan aktivasi segera setelah pembayaran (termasuk tagihan nol rupiah).
   *PRD: FR-13–14, US-G1–G2.*
-- [ ] **Membangun backoffice dan akses staf** *(bagian backend/admin dari `build-backoffice`)* — Role/otorisasi staf; kelola paket, harga, kuota, voucher dan edisi; lihat pelanggan/order/payment; ekspor laporan dan audit tindakan. Teknologi UI admin (mis. Filament) diputuskan saat discovery.  
+- [x] **Membangun backoffice dan akses staf** *(bagian backend/admin dari `build-backoffice`)* — Backend API role `admin`/`staff` dengan admin awal dari konfigurasi server; staf terverifikasi dapat membaca pelanggan/order/payment dan mengekspor CSV, admin dapat mengelola katalog, voucher, edisi E-Paper, role staf, dan audit. Mutasi dan audit tersimpan atomik; paket/voucher yang punya histori tidak merusak referensi transaksi. Implementasi UI admin belum termasuk task ini dan belum memilih Filament atau teknologi UI lain.
   *PRD: FR-20, §5.1.*
 - [ ] **Membangun notifikasi, queue, dan scheduler** *(`implement-notifications`)* — Email bukti transaksi sukses/gagal/kedaluwarsa, pengingat H-7/H-3/H-1 dan expiry; log status kirim. WhatsApp opsional berdasarkan keputusan dan provider yang disetujui.  
   *PRD: FR-16, US-H1–H2.*
