@@ -7,6 +7,7 @@ use App\Jobs\GenerateEpaperDownload;
 use App\Models\EpaperDownload;
 use App\Models\EpaperEdition;
 use App\Models\User;
+use App\Models\UserConsentRecord;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -27,6 +28,8 @@ class EpaperDownloadService
         Request $request,
         EpaperAccessService $access
     ): EpaperDownload {
+        $this->ensureWatermarkConsent($user);
+
         $download = DB::transaction(function () use ($user, $edition, $request, $access): EpaperDownload {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
             $subscription = $access->subscriptionForEdition($user, $edition, lock: true);
@@ -88,6 +91,38 @@ class EpaperDownloadService
         GenerateEpaperDownload::dispatch($download->id)->afterCommit();
 
         return $download;
+    }
+
+    private function ensureWatermarkConsent(User $user): void
+    {
+        $version = config('privacy.consent_versions.epaper_watermark');
+        if (! is_string($version) || $version === '') {
+            throw new HttpResponseException(response()->json([
+                'error' => [
+                    'code' => 'epaper_watermark_notice_not_configured',
+                    'message' => 'Pemberitahuan watermark E-Paper belum dikonfigurasi.',
+                ],
+            ], 503));
+        }
+
+        $accepted = UserConsentRecord::query()
+            ->where('user_id', $user->getKey())
+            ->where('type', 'epaper_watermark')
+            ->where('version', $version)
+            ->orderByDesc('recorded_at')
+            ->orderByDesc('id')
+            ->value('accepted');
+
+        if (! $accepted) {
+            throw new HttpResponseException(response()->json([
+                'error' => [
+                    'code' => 'epaper_watermark_consent_required',
+                    'message' => 'Persetujuan pemberitahuan email dan hash watermark diperlukan sebelum mengunduh E-Paper.',
+                    'type' => 'epaper_watermark',
+                    'version' => $version,
+                ],
+            ], 409));
+        }
     }
 
     public function generate(EpaperDownload $download): void

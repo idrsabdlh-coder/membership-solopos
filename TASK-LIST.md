@@ -40,7 +40,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-20, §5.1.*
 - [x] **Membangun notifikasi, queue, dan scheduler** *(`implement-notifications`)* — Email transaksi sukses/gagal/kedaluwarsa dengan lampiran invoice; pengingat langganan H-7/H-3/H-1 dan saat berakhir; antrean idempoten dengan log status/percobaan serta command retry untuk pengiriman gagal. Scheduler pengingat berjalan pukul 09.00 WIB dan tidak mengingatkan masa aktif yang sudah memiliki perpanjangan terjadwal. WhatsApp tidak termasuk MVP sesuai keputusan desain; pengiriman production tetap memerlukan konfigurasi mailer yang disetujui.
   *PRD: FR-16, US-H1–H2.*
-- [ ] **Menerapkan sesi, persetujuan, dan hak privasi pada backend** *(bagian backend dari `session-device-controls` dan `implement-privacy-controls`)* — Default maksimal dua sesi, otorisasi/revokasi sesuai mekanisme IT, catat consent, retensi serta hak hapus data sesuai UU PDP dan keputusan legal.  
+- [x] **Menerapkan sesi, persetujuan, dan hak privasi pada backend** *(bagian backend dari `session-device-controls` dan `implement-privacy-controls`)* — Batas dua sesi dan pencabutan owner-scoped; ledger persetujuan berversi yang terikat konfigurasi server dan diwajibkan sebelum unduhan E-Paper ber-watermark; ekspor data pribadi owner-scoped tanpa rahasia pembayaran/sesi; permintaan penghapusan ber-password dengan status tinjauan admin dan audit. Tidak menghapus akun/transaksi otomatis; retensi dan pemenuhan penghapusan tetap menunggu jadwal serta persetujuan Legal. Frontend consent/export dan persetujuan dokumen production tetap perlu integrasi/persetujuan terpisah.
   *PRD: FR-17, §6.3, §10, §18.*
 - [ ] **Merekam analitik dan menyediakan data dashboard internal** *(bagian backend dari `implement-analytics`)* — Simpan event funnel dan hitung pelanggan aktif, MRR, churn, konversi paket serta metode pembayaran dengan kontrol akses.  
   *PRD: §3.2, §16.*
@@ -67,7 +67,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-13–14, US-G1–G2.*
 - [ ] **Membangun UI backoffice bila memakai Next.js** *(bagian frontend/admin dari `build-backoffice`)* — Kerjakan hanya jika discovery memilih admin terpisah; jika memakai panel Laravel seperti Filament, task ini tidak diperlukan dan UI ditangani task backend/admin.  
   *PRD: FR-20, §11.4.*
-- [ ] **Menerapkan consent dan pengalaman privasi** *(bagian frontend dari `implement-privacy-controls`)* — Tampilkan persetujuan dan tautan kebijakan/syarat watermark, sediakan alur permintaan hak data sesuai desain legal; jangan tampilkan klaim persetujuan yang tidak dicatat backend.  
+- [ ] **Menerapkan consent dan pengalaman privasi** *(bagian frontend dari `implement-privacy-controls`)* — Integrasikan API consent untuk teks/versi dokumen yang telah disetujui, wajibkan persetujuan notice watermark sebelum unduhan E-Paper, dan sediakan ekspor serta status permintaan penghapusan; jangan tampilkan klaim persetujuan yang tidak tercatat backend atau menjanjikan penghapusan otomatis.
   *PRD: §10, §20.*
 - [ ] **Mengirim event analitik dari UI** *(bagian frontend dari `implement-analytics`)* — Instrumentasikan event pricing, pemilihan paket, checkout, login, E-Paper, clipping, kuota, reminder dan upgrade sesuai skema bersama; hindari data pribadi yang tidak diperlukan.  
   *PRD: §16.*

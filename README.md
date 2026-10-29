@@ -65,6 +65,8 @@ Kontrol perangkat menggunakan database session store (`SESSION_DRIVER=database`)
 
 Pembayaran memakai Midtrans Snap hosted redirect. Untuk sandbox, isi `MIDTRANS_SERVER_KEY` dan `MIDTRANS_CLIENT_KEY` di `.env`, pertahankan `MIDTRANS_IS_PRODUCTION=false`, lalu jalankan worker dengan `php artisan queue:work`. Queue worker juga mengirim email transaksi/pengingat dan menghasilkan PDF E-Paper; jalankan terus-menerus di production. Mailer lokal menggunakan `MAIL_MAILER=log`; konfigurasi kredensial mailer production yang disetujui sebelum mengirim email nyata. Status dan percobaan email tersimpan di `notification_deliveries`; setelah memperbaiki penyebab kegagalan, antrekan ulang dengan `php artisan notifications:retry-failed`. Atur URL notifikasi di dashboard Midtrans ke `https://<api-host>/api/payments/webhook`. Endpoint bayar hanya menerima metode dan nominal yang dihitung server; jangan menyimpan atau mengirim data kartu. Jangan aktifkan mode production sebelum akun merchant, webhook, biaya/refund, dan persetujuan operasional diverifikasi.
 
+Persetujuan privasi/ketentuan dan pemberitahuan watermark dicatat per versi melalui `/api/auth/consents`. Tetapkan `PRIVACY_NOTICE_VERSION`, `TERMS_VERSION`, dan `EPAPER_WATERMARK_NOTICE_VERSION` hanya setelah teksnya disetujui; unduhan E-Paper ditolak sampai versi pemberitahuan watermark diterima pengguna. Pengguna terautentikasi dapat mengunduh ekspor JSON lewat `/api/auth/privacy/export` dan membuat permintaan penghapusan lewat `/api/auth/privacy/deletion-requests`; permintaan ditinjau admin dan tidak menghapus data otomatis. Jadwal retensi dan proses penghapusan produksi harus menunggu persetujuan Legal.
+
 ## Pemeriksaan
 
 ```powershell

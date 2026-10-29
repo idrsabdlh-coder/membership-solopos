@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\EpaperEditionController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
+use App\Http\Controllers\Api\Admin\PrivacyDataRequestController;
 use App\Http\Controllers\Api\Admin\ReportController;
 use App\Http\Controllers\Api\Admin\StaffRoleController;
 use App\Http\Controllers\Api\Admin\VoucherManagementController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\EpaperReaderController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlanController;
+use App\Http\Controllers\Api\PrivacyController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SessionController;
 use App\Http\Controllers\Api\SubscriptionController;
@@ -59,6 +61,12 @@ Route::prefix('auth')->group(function (): void {
         Route::patch('password', [ProfileController::class, 'changePassword'])->middleware('throttle:5,1');
         Route::get('sessions', [SessionController::class, 'index']);
         Route::delete('sessions/{session}', [SessionController::class, 'destroy']);
+        Route::get('consents', [PrivacyController::class, 'consents']);
+        Route::post('consents', [PrivacyController::class, 'recordConsent'])->middleware('throttle:20,1');
+        Route::get('privacy/export', [PrivacyController::class, 'export'])->middleware('throttle:5,1');
+        Route::get('privacy/deletion-requests', [PrivacyController::class, 'deletionRequests']);
+        Route::post('privacy/deletion-requests', [PrivacyController::class, 'requestDeletion'])
+            ->middleware('throttle:3,60');
     });
 });
 
@@ -114,6 +122,9 @@ Route::prefix('admin')
         Route::middleware('backoffice:admin')->group(function (): void {
             Route::patch('users/{user}/role', [StaffRoleController::class, 'update'])->whereNumber('user');
             Route::get('audit-logs', [AuditLogController::class, 'index']);
+            Route::get('privacy/deletion-requests', [PrivacyDataRequestController::class, 'index']);
+            Route::patch('privacy/deletion-requests/{privacyDataRequest}', [PrivacyDataRequestController::class, 'update'])
+                ->whereNumber('privacyDataRequest');
             Route::get('plans', [AdminPlanController::class, 'index']);
             Route::post('plans', [AdminPlanController::class, 'store'])->middleware('throttle:10,1');
             Route::get('plans/{plan}', [AdminPlanController::class, 'show'])->whereNumber('plan');

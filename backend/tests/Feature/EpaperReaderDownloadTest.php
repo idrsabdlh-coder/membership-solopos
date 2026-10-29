@@ -12,6 +12,7 @@ use App\Models\EpaperEdition;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Models\UserConsentRecord;
 use App\Services\EpaperDownloadService;
 use App\Services\EpaperPdfInspector;
 use Carbon\CarbonImmutable;
@@ -34,6 +35,7 @@ class EpaperReaderDownloadTest extends TestCase
             'epaper.signed_url_ttl_minutes' => 5,
             'epaper.default_download_limit_per_edition' => 3,
             'epaper.default_download_limit_per_day' => 10,
+            'privacy.consent_versions.epaper_watermark' => '2026-01',
         ]);
         Storage::fake('local');
     }
@@ -119,6 +121,7 @@ class EpaperReaderDownloadTest extends TestCase
         $edition = $this->edition();
         $member = User::factory()->create();
         $this->subscription($member);
+        $this->acceptWatermarkNotice($member);
 
         $this->actingAs($member, 'sanctum')
             ->withHeader('User-Agent', 'Epaper test browser')
@@ -136,11 +139,52 @@ class EpaperReaderDownloadTest extends TestCase
         Queue::assertPushed(GenerateEpaperDownload::class, fn (GenerateEpaperDownload $job): bool => $job->downloadId === $download->id);
     }
 
+    public function test_download_requires_acceptance_of_the_current_watermark_notice(): void
+    {
+        Queue::fake();
+        $edition = $this->edition();
+        $member = User::factory()->create();
+        $this->subscription($member);
+
+        config(['privacy.consent_versions.epaper_watermark' => null]);
+        $this->actingAs($member, 'sanctum')
+            ->getJson("/api/epaper/editions/{$edition->id}/download")
+            ->assertServiceUnavailable()
+            ->assertJsonPath('error.code', 'epaper_watermark_notice_not_configured');
+
+        config(['privacy.consent_versions.epaper_watermark' => '2026-01']);
+        UserConsentRecord::query()->create([
+            'user_id' => $member->id,
+            'type' => 'epaper_watermark',
+            'version' => '2026-01',
+            'accepted' => false,
+            'recorded_at' => now(),
+        ]);
+        $this->actingAs($member, 'sanctum')
+            ->getJson("/api/epaper/editions/{$edition->id}/download")
+            ->assertConflict()
+            ->assertJsonPath('error.code', 'epaper_watermark_consent_required')
+            ->assertJsonPath('error.version', '2026-01');
+
+        $this->actingAs($member, 'sanctum')
+            ->postJson('/api/auth/consents', [
+                'type' => 'epaper_watermark',
+                'version' => '2026-01',
+                'accepted' => true,
+            ])
+            ->assertCreated();
+
+        $this->actingAs($member, 'sanctum')
+            ->getJson("/api/epaper/editions/{$edition->id}/download")
+            ->assertAccepted();
+    }
+
     public function test_download_limit_is_enforced_per_edition_and_history_is_owner_scoped(): void
     {
         $edition = $this->edition();
         $member = User::factory()->create();
         $this->subscription($member);
+        $this->acceptWatermarkNotice($member);
 
         foreach (range(1, 3) as $index) {
             $this->recordDownload($member, $edition, $index);
@@ -240,6 +284,7 @@ class EpaperReaderDownloadTest extends TestCase
         $edition = $this->edition();
         $member = User::factory()->create();
         $this->subscription($member);
+        $this->acceptWatermarkNotice($member);
         $todayStart = CarbonImmutable::now('Asia/Jakarta')->startOfDay()->utc();
         $todayEnd = $todayStart->addDay();
 
@@ -263,6 +308,7 @@ class EpaperReaderDownloadTest extends TestCase
     {
         $member = User::factory()->create();
         $this->subscription($member);
+        $this->acceptWatermarkNotice($member);
         $editions = [];
         for ($number = 301; $number <= 304; $number++) {
             $editions[] = $this->edition(['edition_number' => $number]);
@@ -354,6 +400,17 @@ class EpaperReaderDownloadTest extends TestCase
             'requested_at' => now(),
             'downloaded_at' => null,
             ...$attributes,
+        ]);
+    }
+
+    private function acceptWatermarkNotice(User $user): void
+    {
+        UserConsentRecord::query()->create([
+            'user_id' => $user->id,
+            'type' => 'epaper_watermark',
+            'version' => config('privacy.consent_versions.epaper_watermark'),
+            'accepted' => true,
+            'recorded_at' => now(),
         ]);
     }
 
