@@ -17,7 +17,10 @@ use RuntimeException;
 
 class PaymentStatusProcessor
 {
-    public function __construct(private readonly PaymentGatewayInterface $gateway) {}
+    public function __construct(
+        private readonly PaymentGatewayInterface $gateway,
+        private readonly AnalyticsEventService $analytics,
+    ) {}
 
     public function processWebhookEvent(int $eventId): void
     {
@@ -84,6 +87,7 @@ class PaymentStatusProcessor
                 ? $notification['method']
                 : $payment->method;
             $payment->raw_payload = $payload;
+            $previousPaymentStatus = $payment->status;
 
             if ($status === PaymentStatus::Success) {
                 $payment->status = PaymentStatus::Success;
@@ -96,11 +100,11 @@ class PaymentStatusProcessor
 
                 if (! $wasPaid) {
                     $orderPaid = [$order, $payment];
+                    $this->analytics->recordGenerated('payment_success', 'payment', $payment->id, [
+                        'plan_id' => $order->plan_id,
+                    ]);
                 }
-            } else {
-                $previousPaymentStatus = $payment->status;
-            }
-            if ($status !== null && $payment->status !== PaymentStatus::Success) {
+            } elseif ($status !== null && $payment->status !== PaymentStatus::Success) {
                 $payment->status = $status;
             }
 
@@ -121,6 +125,12 @@ class PaymentStatusProcessor
             } elseif ($status !== null
                 && $previousPaymentStatus !== $payment->status
                 && in_array($payment->status, [PaymentStatus::Failed, PaymentStatus::Expired], true)) {
+                if ($payment->status === PaymentStatus::Failed) {
+                    $this->analytics->recordGenerated('payment_failed', 'payment', $payment->id, [
+                        'plan_id' => $order->plan_id,
+                    ]);
+                }
+
                 $order->loadMissing(['user', 'plan']);
                 OrderPaymentStatusChanged::dispatch($order, $payment);
             }

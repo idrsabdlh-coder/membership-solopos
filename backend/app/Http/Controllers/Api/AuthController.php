@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\AnalyticsEventService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
@@ -43,8 +44,11 @@ class AuthController extends Controller
             ->setStatusCode(201);
     }
 
-    public function login(Request $request, SessionController $sessions): UserResource|JsonResponse
-    {
+    public function login(
+        Request $request,
+        SessionController $sessions,
+        AnalyticsEventService $analytics,
+    ): UserResource|JsonResponse {
         $sessions->ensureDatabaseSessionStore();
 
         if (! $request->hasSession()) {
@@ -84,6 +88,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $request->session()->save();
         $previousSessionRevoked = $sessions->enforceLimit($request, $user);
+        $analytics->record('login', (string) Str::uuid());
 
         return UserResource::make($user)
             ->additional(['meta' => ['previous_session_revoked' => $previousSessionRevoked]]);

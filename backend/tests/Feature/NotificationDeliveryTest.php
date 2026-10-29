@@ -13,6 +13,7 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\AnalyticsEventService;
 use App\Services\InvoiceService;
 use App\Services\PaymentStatusProcessor;
 use Carbon\CarbonImmutable;
@@ -53,10 +54,14 @@ class NotificationDeliveryTest extends TestCase
         $delivery = NotificationDelivery::query()->sole();
         $this->assertSame('order.payment_succeeded', $delivery->type);
         $this->assertSame('queued', $delivery->status);
+        $this->assertDatabaseHas('analytics_events', [
+            'name' => 'payment_success',
+            'event_key' => 'payment_success:payment:'.$payment->id,
+        ]);
 
         $job = new SendNotificationDelivery($delivery->id);
-        $job->handle(app(InvoiceService::class));
-        $job->handle(app(InvoiceService::class));
+        $job->handle(app(InvoiceService::class), app(AnalyticsEventService::class));
+        $job->handle(app(InvoiceService::class), app(AnalyticsEventService::class));
 
         $this->assertSame('sent', $delivery->fresh()->status);
         $this->assertSame(1, $delivery->fresh()->attempts);
@@ -77,12 +82,16 @@ class NotificationDeliveryTest extends TestCase
         app(PaymentStatusProcessor::class)->processStatusResponse(
             $this->paymentPayload($payment, 'deny')
         );
+        $this->assertDatabaseHas('analytics_events', [
+            'name' => 'payment_failed',
+            'event_key' => 'payment_failed:payment:'.$payment->id,
+        ]);
 
         $delivery = NotificationDelivery::query()->sole();
         $this->assertSame('order.payment_failed', $delivery->type);
         $this->assertSame('pending', $order->fresh()->status->value);
 
-        (new SendNotificationDelivery($delivery->id))->handle(app(InvoiceService::class));
+        (new SendNotificationDelivery($delivery->id))->handle(app(InvoiceService::class), app(AnalyticsEventService::class));
 
         $this->assertSame('sent', $delivery->fresh()->status);
         Mail::assertSent(MembershipNoticeMail::class, fn (MembershipNoticeMail $mail): bool => $mail->invoicePdf !== null
@@ -122,8 +131,12 @@ class NotificationDeliveryTest extends TestCase
         $h7Delivery = NotificationDelivery::query()
             ->where('type', 'subscription.reminder.h7')
             ->firstOrFail();
-        (new SendNotificationDelivery($h7Delivery->id))->handle(app(InvoiceService::class));
+        (new SendNotificationDelivery($h7Delivery->id))->handle(app(InvoiceService::class), app(AnalyticsEventService::class));
         $this->assertSame('sent', $h7Delivery->fresh()->status);
+        $this->assertDatabaseHas('analytics_events', [
+            'name' => 'reminder_sent',
+            'event_key' => 'reminder_sent:notification_delivery:'.$h7Delivery->id,
+        ]);
         Mail::assertSent(MembershipNoticeMail::class, fn (MembershipNoticeMail $mail): bool => $mail->invoicePdf === null);
 
         $renewedUser = User::factory()->create();

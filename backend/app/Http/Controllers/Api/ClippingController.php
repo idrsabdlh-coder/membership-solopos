@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ClippingResource;
 use App\Models\Clipping;
 use App\Models\Subscription;
+use App\Services\AnalyticsEventService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class ClippingController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, AnalyticsEventService $analytics): JsonResponse
     {
         $validated = $request->validate([
             'article_ref' => ['required', 'string', 'max:255'],
@@ -121,6 +122,9 @@ class ClippingController extends Controller
 
         $used = Clipping::query()->where('subscription_id', $clipping->subscription_id)->count();
         $quota = $clipping->subscription->plan->clipping_quota;
+        $analytics->recordGenerated('clip_added', 'clipping', $clipping->id, [
+            'plan_id' => $clipping->subscription->plan_id,
+        ]);
 
         return response()->json([
             'data' => ClippingResource::make($clipping)->resolve($request),

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
+use App\Models\AnalyticsEvent;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
@@ -69,6 +70,35 @@ class SubscriptionLifecycleTest extends TestCase
         $processor->processWebhookEvent($event->id);
 
         $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('analytics_events', 1);
+    }
+
+    public function test_successful_renewal_records_an_idempotent_renewal_event(): void
+    {
+        Queue::fake();
+        $user = User::factory()->create();
+        $plan = $this->plan();
+        Subscription::query()->create([
+            'user_id' => $user->id,
+            'plan_id' => $plan->id,
+            'status' => SubscriptionStatus::Active,
+            'start_date' => now()->subDays(10),
+            'end_date' => now()->addDays(12),
+        ]);
+        $order = $this->createOrder($user);
+        $payment = $this->createPayment($order);
+        $payload = $this->signedSettlement($payment);
+
+        $this->postJson('/api/payments/webhook', $payload)->assertOk();
+        $event = PaymentWebhookEvent::query()->firstOrFail();
+        app(PaymentStatusProcessor::class)->processWebhookEvent($event->id);
+        app(PaymentStatusProcessor::class)->processWebhookEvent($event->id);
+
+        $this->assertDatabaseHas('analytics_events', [
+            'name' => 'renewal_success',
+            'event_key' => 'renewal_success:payment:'.$payment->id,
+        ]);
+        $this->assertSame(1, AnalyticsEvent::query()->where('name', 'renewal_success')->count());
     }
 
     public function test_renewal_starts_after_the_current_term_and_is_scheduled(): void

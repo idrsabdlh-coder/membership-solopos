@@ -42,7 +42,7 @@ Legenda: `[x]` selesai · `[~]` sedang dikerjakan · `[ ]` belum dimulai.
   *PRD: FR-16, US-H1–H2.*
 - [x] **Menerapkan sesi, persetujuan, dan hak privasi pada backend** *(bagian backend dari `session-device-controls` dan `implement-privacy-controls`)* — Batas dua sesi dan pencabutan owner-scoped; ledger persetujuan berversi yang terikat konfigurasi server dan diwajibkan sebelum unduhan E-Paper ber-watermark; ekspor data pribadi owner-scoped tanpa rahasia pembayaran/sesi; permintaan penghapusan ber-password dengan status tinjauan admin dan audit. Tidak menghapus akun/transaksi otomatis; retensi dan pemenuhan penghapusan tetap menunggu jadwal serta persetujuan Legal. Frontend consent/export dan persetujuan dokumen production tetap perlu integrasi/persetujuan terpisah.
   *PRD: FR-17, §6.3, §10, §18.*
-- [ ] **Merekam analitik dan menyediakan data dashboard internal** *(bagian backend dari `implement-analytics`)* — Simpan event funnel dan hitung pelanggan aktif, MRR, churn, konversi paket serta metode pembayaran dengan kontrol akses.  
+- [x] **Merekam analitik dan menyediakan data dashboard internal** *(bagian backend dari `implement-analytics`)* — `POST /api/analytics/events` menerima event UI allowlist secara idempoten tanpa identitas/PII; event login, pembayaran sukses/gagal, perpanjangan, clipping dan reminder direkam dari backend. Dashboard `GET /api/admin/analytics/dashboard` dibatasi ke staf/admin dan menghitung pelanggan aktif, MRR, churn, konversi per paket, metode bayar, dan hitungan event dalam rentang WIB. UI/instrumentasi frontend dan persetujuan Legal untuk produksi bukan bagian backend task ini.
   *PRD: §3.2, §16.*
 
 ## Frontend — Next.js UI dan integrasi API

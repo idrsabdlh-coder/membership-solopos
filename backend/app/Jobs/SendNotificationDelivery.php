@@ -8,6 +8,7 @@ use App\Mail\MembershipNoticeMail;
 use App\Models\NotificationDelivery;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\AnalyticsEventService;
 use App\Services\InvoiceService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -28,7 +29,7 @@ class SendNotificationDelivery implements ShouldQueue
 
     public function __construct(public readonly int $deliveryId) {}
 
-    public function handle(InvoiceService $invoices): void
+    public function handle(InvoiceService $invoices, AnalyticsEventService $analytics): void
     {
         $delivery = NotificationDelivery::query()->findOrFail($this->deliveryId);
         if ($delivery->status === 'sent') {
@@ -57,6 +58,10 @@ class SendNotificationDelivery implements ShouldQueue
             'sent_at' => now(),
             'failure_reason' => null,
         ])->save();
+
+        if (str_starts_with($delivery->type, 'subscription.reminder.')) {
+            $analytics->recordGenerated('reminder_sent', 'notification_delivery', $delivery->id);
+        }
     }
 
     public function failed(?Throwable $exception): void

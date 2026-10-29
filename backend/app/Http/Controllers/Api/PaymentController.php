@@ -12,6 +12,7 @@ use App\Jobs\ProcessPaymentWebhook;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
+use App\Services\AnalyticsEventService;
 use App\Services\OrderService;
 use App\Services\PaymentStatusProcessor;
 use Illuminate\Http\JsonResponse;
@@ -28,7 +29,8 @@ class PaymentController extends Controller
         Request $request,
         string $order,
         OrderService $orders,
-        PaymentGatewayInterface $gateway
+        PaymentGatewayInterface $gateway,
+        AnalyticsEventService $analytics,
     ): JsonResponse {
         $validated = $request->validate([
             'method' => ['required', 'string', Rule::in(['bank_transfer', 'qris', 'gopay', 'shopeepay'])],
@@ -90,6 +92,9 @@ class PaymentController extends Controller
             $transaction = $gateway->createTransaction($orderModel, $payment);
         } catch (RuntimeException $exception) {
             $payment->update(['status' => PaymentStatus::Failed]);
+            $analytics->recordGenerated('payment_failed', 'payment', $payment->id, [
+                'plan_id' => $payment->order->plan_id,
+            ]);
             $orderModel = $payment->order()->with(['user', 'plan'])->firstOrFail();
             OrderPaymentStatusChanged::dispatch($orderModel, $payment->fresh());
             Log::warning('Midtrans transaction creation failed.', [

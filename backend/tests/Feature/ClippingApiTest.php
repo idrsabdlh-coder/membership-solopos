@@ -43,6 +43,10 @@ class ClippingApiTest extends TestCase
             ->assertJsonPath('meta.quota.remaining', $subscription->plan->clipping_quota - 1);
 
         $this->assertDatabaseCount('clippings', 1);
+        $this->assertDatabaseHas('analytics_events', [
+            'name' => 'clip_added',
+            'event_key' => 'clip_added:clipping:'.Clipping::query()->sole()->id,
+        ]);
     }
 
     public function test_duplicate_articles_return_a_conflict_without_creating_a_second_record(): void

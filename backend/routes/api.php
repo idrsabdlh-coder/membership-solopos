@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AnalyticsDashboardController;
 use App\Http\Controllers\Api\Admin\AuditLogController;
 use App\Http\Controllers\Api\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Api\Admin\EpaperEditionController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\Admin\PrivacyDataRequestController;
 use App\Http\Controllers\Api\Admin\ReportController;
 use App\Http\Controllers\Api\Admin\StaffRoleController;
 use App\Http\Controllers\Api\Admin\VoucherManagementController;
+use App\Http\Controllers\Api\AnalyticsEventController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClippingController;
 use App\Http\Controllers\Api\EntitlementController;
@@ -29,6 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('plans', [PlanController::class, 'index']);
+Route::post('analytics/events', [AnalyticsEventController::class, 'store'])->middleware('throttle:120,1');
 
 Route::get('epaper/editions', [EpaperReaderController::class, 'index']);
 Route::get('epaper/editions/{edition}/cover', [EpaperReaderController::class, 'cover'])
@@ -118,6 +121,7 @@ Route::prefix('admin')
         Route::get('payments', [AdminPaymentController::class, 'index']);
         Route::get('reports/customers.csv', [ReportController::class, 'customers'])->middleware('throttle:10,1');
         Route::get('reports/transactions.csv', [ReportController::class, 'transactions'])->middleware('throttle:10,1');
+        Route::get('analytics/dashboard', [AnalyticsDashboardController::class, 'show']);
 
         Route::middleware('backoffice:admin')->group(function (): void {
             Route::patch('users/{user}/role', [StaffRoleController::class, 'update'])->whereNumber('user');
